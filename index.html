@@ -1,0 +1,1130 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <title>🃏 Pointage de Cartes</title>
+  <!-- Toutes les bibliothèques sont locales (dossier lib/) : aucune connexion Internet requise -->
+  <script src="lib/tailwind.js"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['"Segoe UI"', 'system-ui', 'Roboto', 'Helvetica', 'Arial', 'sans-serif'] },
+          colors: {
+            main: '#1a1a2e',
+            card: '#16213e',
+            accent: '#0f3460',
+            calc: '#1e2d4a',
+            neon: '#00c8e0',
+          }
+        }
+      }
+    }
+  </script>
+  <script src="lib/react.production.min.js"></script>
+  <script src="lib/react-dom.production.min.js"></script>
+  <script src="lib/babel.min.js"></script>
+  <style>
+    * { font-family: "Segoe UI", system-ui, Roboto, Helvetica, Arial, sans-serif; }
+    body { background: #1a1a2e; }
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+    .anim-fade { animation: fadeIn 0.3s ease-out; }
+    @keyframes glowPulse {
+      0%, 100% { box-shadow: 0 0 8px rgba(0,200,224,0.25); }
+      50% { box-shadow: 0 0 24px rgba(0,200,224,0.5); }
+    }
+    .glow { animation: glowPulse 2.5s infinite; }
+    @keyframes cardFloat {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-8px) rotate(2deg); }
+    }
+    .card-float { animation: cardFloat 3s ease-in-out infinite; }
+
+    /* ── Tableaux adaptatifs : largeur fixe, jamais de défilement horizontal ── */
+    .sheet { container-type: inline-size; }
+    .sheet-t { width: 100%; table-layout: fixed; border-collapse: collapse;
+               --fs: 14px; --py: 7px; --px: 6px; font-size: var(--fs); }
+    .sheet-t th, .sheet-t td { white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+                               padding: var(--py) var(--px); }
+    .sheet-t th { font-size: calc(var(--fs) - 1px); font-weight: 700; }
+    .sheet-t td.in { padding: 3px 2px; }
+    .cell-in { width: 100%; min-width: 0; padding: var(--py) 2px; font-size: var(--fs);
+               text-align: center; border-radius: 6px; }
+    .lbl-short { display: none; }
+    @container (max-width: 760px) { .sheet-t { --fs: 13px; --py: 6px; --px: 4px; } }
+    @container (max-width: 620px) { .sheet-t { --fs: 12px; --py: 5px; --px: 3px; } }
+    @container (max-width: 520px) {
+      .sheet-t { --fs: 11px; --py: 4px; --px: 2px; }
+      .lbl-long { display: none; }
+      .lbl-short { display: inline; }
+    }
+  </style>
+</head>
+<body class="text-gray-100 min-h-screen overflow-x-hidden">
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect, useMemo, useRef } = React;
+
+    /* ═══════════════════════════════════════════════
+       UTILITAIRES
+       ═══════════════════════════════════════════════ */
+
+    const STORAGE_KEY = 'carteAppData';
+    const FANTOME = 'Fantôme';
+    const PKS = ['partie1', 'partie2'];
+    const PLABEL = { partie1: 'Partie 1', partie2: 'Partie 2' };
+
+    function uid() {
+      if (crypto.randomUUID) return crypto.randomUUID();
+      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+        const r = Math.random() * 16 | 0;
+        return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+      });
+    }
+
+    function load() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const d = JSON.parse(raw);
+          return { joueurs: d.joueurs || [], parties: d.parties || [], presences: d.presences || {} };
+        }
+      } catch (e) { console.error(e); }
+      return { joueurs: [], parties: [], presences: {} };
+    }
+
+    function save(data) {
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch (e) { console.error(e); }
+    }
+
+    function shuffle(arr) {
+      const a = [...arr];
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    function todayISO() {
+      const d = new Date();
+      return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    }
+
+    function fmtDate(iso) {
+      if (!iso) return '';
+      const [y,m,d] = iso.split('-');
+      return `${d}/${m}/${y}`;
+    }
+
+    function fmt1(n) { return n.toFixed(1).replace('.', ','); }
+
+    function doQuit() {
+      window.close();
+      setTimeout(() => alert('Le navigateur ne permet pas de fermer cette fenêtre automatiquement.\nFermez-la manuellement.'), 300);
+    }
+
+    const EMPTY_SCORE = () => ({ pique:null, trefle:null, carreau:null, coeur:null, toutAtout:null, nb15:null });
+
+    const SUITS = [
+      { key:'pique',    label:'♠ Pique',    sym:'♠', color:'text-gray-300'  },
+      { key:'trefle',   label:'♣ Trèfle',   sym:'♣', color:'text-green-400' },
+      { key:'carreau',  label:'♦ Carreau',  sym:'♦', color:'text-blue-400'  },
+      { key:'coeur',    label:'♥ Cœur',     sym:'♥', color:'text-red-400'   },
+      { key:'toutAtout',label:'✦ T. Atout', sym:'✦', color:'text-yellow-400'},
+    ];
+
+    const isFantome = (j) => !!j && j.nom === FANTOME;
+
+    const sumSuits = (s) => SUITS.reduce((a, su) => a + ((s && s[su.key]) || 0), 0);
+
+    /* Le Fantôme est toujours placé en dernier dans son équipe */
+    function orderTeam(ids, joueurs) {
+      const ghost = (id) => isFantome(joueurs.find(j => j.id === id));
+      return [...ids.filter(id => !ghost(id)), ...ids.filter(id => ghost(id))];
+    }
+
+    /* Une partie est considérée jouée si au moins une manche a été saisie */
+    function partiePlayed(partie, pk) {
+      const sc = partie.scores?.[pk] || {};
+      return Object.values(sc).some(s => SUITS.some(su => s?.[su.key] != null));
+    }
+
+    const cellKey = (pk, id, suit) => `${pk}|${id}|${suit}`;
+
+    /* ═══════════════════════════════════════════════
+       COMPOSANTS PARTAGÉS
+       ═══════════════════════════════════════════════ */
+
+    const BTN_V = {
+      primary:   'bg-neon text-main font-bold hover:bg-neon/80',
+      secondary: 'bg-gray-700 hover:bg-gray-600 font-medium',
+      success:   'bg-emerald-600 hover:bg-emerald-500 text-white font-bold',
+      danger:    'bg-red-700 hover:bg-red-600 text-white font-bold',
+    };
+
+    /* Boîte de dialogue : Tab/Maj+Tab circulent entre les boutons, Entrée valide le bouton actif, Échap annule */
+    function Modal({ open, title, message, buttons, initialFocus = 0, onEscape, confirmText, cancelText, onConfirm, onCancel }) {
+      const boxRef = useRef(null);
+      const btns = buttons || [
+        ...(onCancel  ? [{ label: cancelText  || 'Annuler',   onClick: onCancel,  v: 'secondary' }] : []),
+        ...(onConfirm ? [{ label: confirmText || 'Confirmer', onClick: onConfirm, v: 'primary'   }] : []),
+      ];
+
+      useEffect(() => {
+        if (!open) return;
+        const list = boxRef.current?.querySelectorAll('button');
+        if (list && list[initialFocus]) list[initialFocus].focus();
+      }, [open]);
+
+      if (!open) return null;
+
+      const onKey = (e) => {
+        const list = [...boxRef.current.querySelectorAll('button')];
+        if (e.key === 'Tab') {
+          e.preventDefault();
+          const i = list.indexOf(document.activeElement);
+          const n = ((i < 0 ? 0 : i) + (e.shiftKey ? -1 : 1) + list.length) % list.length;
+          list[n].focus();
+        } else if (e.key === 'Escape') {
+          e.preventDefault();
+          const esc = onEscape || onCancel;
+          if (esc) esc();
+        }
+      };
+
+      return (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 anim-fade"
+          role="dialog" aria-modal="true" onKeyDown={onKey}>
+          <div ref={boxRef} className="bg-card rounded-2xl p-6 max-w-md w-full shadow-2xl border border-accent">
+            {title && <h3 className="text-lg font-bold text-neon mb-3">{title}</h3>}
+            <p className="text-gray-300 mb-6 leading-relaxed">{message}</p>
+            <div className="flex flex-wrap gap-3 justify-end">
+              {btns.map((b, i) => (
+                <button key={i} onClick={b.onClick}
+                  className={`px-5 py-2.5 rounded-xl transition-colors active:scale-95 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-card ${BTN_V[b.v || 'secondary']}`}>
+                  {b.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    function Btn({ onClick, children, v='primary', className='' }) {
+      const base = 'w-full min-h-[48px] px-6 py-3.5 rounded-xl font-semibold text-base transition-all duration-200 flex items-center justify-center gap-2 active:scale-[0.97]';
+      const variants = {
+        primary:   'bg-gradient-to-r from-accent to-neon/20 border border-neon/40 text-neon hover:border-neon hover:shadow-lg hover:shadow-neon/20',
+        secondary: 'bg-card border border-gray-600 text-gray-300 hover:border-gray-400 hover:text-white',
+        danger:    'bg-red-900/30 border border-red-500/40 text-red-400 hover:border-red-400 hover:bg-red-900/50',
+        success:   'bg-emerald-900/30 border border-emerald-500/40 text-emerald-400 hover:border-emerald-400 hover:bg-emerald-900/50',
+      };
+      return <button onClick={onClick} className={`${base} ${variants[v]} ${className}`}>{children}</button>;
+    }
+
+    /* En-tête de manche : libellé complet, ou symbole seul sur très petit écran */
+    function SuitTh({ s, className='' }) {
+      return (
+        <th className={`text-center ${s.color} ${className}`} title={s.label}>
+          <span className="lbl-long">{s.label}</span><span className="lbl-short">{s.sym}</span>
+        </th>
+      );
+    }
+
+    /* Libellé d'en-tête avec version courte pour très petit écran */
+    function Lbl({ long, short }) {
+      return <><span className="lbl-long">{long}</span><span className="lbl-short">{short}</span></>;
+    }
+
+    /* ═══════════════════════════════════════════════
+       PAGE : ACCUEIL
+       ═══════════════════════════════════════════════ */
+
+    function Accueil({ setPage }) {
+      return (
+        <div className="min-h-screen flex flex-col items-center justify-center p-6 anim-fade">
+          <div className="text-center mb-14">
+            <div className="text-8xl mb-5 card-float">🃏</div>
+            <h1 className="text-4xl sm:text-5xl font-extrabold bg-gradient-to-r from-neon via-cyan-300 to-neon bg-clip-text text-transparent leading-tight">
+              Pointage de Cartes
+            </h1>
+            <p className="text-gray-500 mt-3 text-sm tracking-widest uppercase">Suivi de parties &amp; statistiques</p>
+          </div>
+          <div className="w-full max-w-sm flex flex-col gap-4">
+            <Btn onClick={() => setPage('joueurs')} v="primary" className="glow">🃏 Nouvelle partie</Btn>
+            <Btn onClick={() => setPage('statistiques')} v="secondary">📊 Statistiques</Btn>
+            <Btn onClick={doQuit} v="danger">🚪 Quitter</Btn>
+          </div>
+        </div>
+      );
+    }
+
+    /* ═══════════════════════════════════════════════
+       PAGE : JOUEURS
+       ═══════════════════════════════════════════════ */
+
+    function Joueurs({ data, setData, setPage, setPartieId }) {
+      const today = todayISO();
+      const [newName, setNewName] = useState('');
+      const [editId, setEditId] = useState(null);
+      const [editName, setEditName] = useState('');
+      /* Présences du jour : reprises de l'enregistrement du jour s'il existe, sinon « présent » par défaut */
+      const [pres, setPres] = useState(() => {
+        const rec = data.presences?.[today] || {};
+        const p = {};
+        data.joueurs.forEach(j => { p[j.id] = j.id in rec ? rec[j.id] : true; });
+        return p;
+      });
+      const [delModal, setDelModal] = useState(null);
+      const [existModal, setExistModal] = useState(false);
+      const inputRef = useRef(null);
+
+      useEffect(() => {
+        setPres(prev => {
+          const u = { ...prev };
+          data.joueurs.forEach(j => { if (!(j.id in u)) u[j.id] = true; });
+          return u;
+        });
+      }, [data.joueurs.length]);
+
+      const storePresence = (id, v) => {
+        setData(d => ({ ...d, presences: { ...d.presences, [today]: { ...(d.presences?.[today] || {}), [id]: v } } }));
+      };
+
+      const add = () => {
+        const n = newName.trim();
+        if (!n) return;
+        if (data.joueurs.some(j => j.nom.toLowerCase() === n.toLowerCase())) { alert('Ce joueur existe déjà.'); return; }
+        const id = uid();
+        setData(p => ({ ...p, joueurs: [...p.joueurs, { id, nom: n }] }));
+        setPres(p => ({ ...p, [id]: true }));
+        setNewName('');
+        inputRef.current?.focus();
+      };
+
+      const del = (id) => {
+        setData(p => ({ ...p, joueurs: p.joueurs.filter(j => j.id !== id) }));
+        setPres(p => { const u = { ...p }; delete u[id]; return u; });
+        setDelModal(null);
+      };
+
+      const startEdit = (j) => { setEditId(j.id); setEditName(j.nom); };
+      const saveEdit = () => {
+        const n = editName.trim();
+        if (!n) { setEditId(null); return; }
+        setData(p => ({ ...p, joueurs: p.joueurs.map(j => j.id === editId ? { ...j, nom: n } : j) }));
+        setEditId(null);
+      };
+
+      const toggle = (id) => {
+        const v = !pres[id];
+        setPres(p => ({ ...p, [id]: v }));
+        storePresence(id, v);
+      };
+      const presentCount = data.joueurs.filter(j => !isFantome(j) && pres[j.id]).length;
+
+      const existing = data.parties.find(p => p.date === today);
+
+      const doGen = () => {
+        const reels = data.joueurs.filter(j => !isFantome(j));
+        const ids = reels.filter(j => pres[j.id]).map(j => j.id);
+        if (ids.length < 2) { alert('Il faut au moins 2 joueurs présents.'); setExistModal(false); return; }
+
+        const joueurs = [...data.joueurs];
+        if (ids.length % 2 !== 0) {
+          let f = joueurs.find(isFantome);
+          if (!f) { f = { id: uid(), nom: FANTOME }; joueurs.push(f); }
+          ids.push(f.id);
+        }
+
+        const sh = shuffle(ids);
+        const mid = Math.ceil(sh.length / 2);
+        const e1 = orderTeam(sh.slice(0, mid), joueurs), e2 = orderTeam(sh.slice(mid), joueurs);
+        const np = { id: uid(), date: today, equipe1: e1, equipe2: e2, scores: { partie1: {}, partie2: {} } };
+        [...e1, ...e2].forEach(id => { np.scores.partie1[id] = EMPTY_SCORE(); np.scores.partie2[id] = EMPTY_SCORE(); });
+
+        /* Enregistre les présences / absences du jour pour chaque joueur */
+        const presRec = {};
+        reels.forEach(j => { presRec[j.id] = !!pres[j.id]; });
+
+        setData(d => ({
+          ...d,
+          joueurs,
+          parties: [...d.parties.filter(p => p.date !== today), np],
+          presences: { ...(d.presences || {}), [today]: presRec },
+        }));
+        setPartieId(np.id);
+        setExistModal(false);
+        setPage('scoreboard');
+      };
+
+      const keep = () => {
+        setPartieId(existing.id);
+        setExistModal(false);
+        setPage('scoreboard');
+      };
+
+      const handleGen = () => {
+        if (existing) setExistModal(true);
+        else doGen();
+      };
+
+      return (
+        <div className="min-h-screen p-4 pb-8 anim-fade">
+          <div className="max-w-lg mx-auto">
+            <h2 className="text-2xl font-bold text-neon mb-1 text-center">👥 Gestion des joueurs</h2>
+            <p className="text-gray-500 text-center text-sm mb-6">{data.joueurs.length} joueur{data.joueurs.length!==1?'s':''} · {presentCount} présent{presentCount!==1?'s':''}</p>
+
+            <div className="bg-card rounded-2xl border border-accent/50 overflow-hidden mb-6">
+              {data.joueurs.length === 0 ? (
+                <div className="p-8 text-center text-gray-500">
+                  <p className="text-4xl mb-3">👤</p><p>Aucun joueur. Ajoutez-en ci-dessous.</p>
+                </div>
+              ) : (
+                <table className="w-full">
+                  <thead>
+                    <tr className="bg-accent/60 text-xs uppercase tracking-wider text-gray-400">
+                      <th className="text-left py-3 px-4 whitespace-nowrap">Nom du joueur</th>
+                      <th className="text-center py-3 px-2 w-20 whitespace-nowrap">Présent</th>
+                      <th className="text-center py-3 px-2 w-24 whitespace-nowrap">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {data.joueurs.map((j, i) => (
+                      <tr key={j.id} className={`border-t border-gray-700/50 ${i%2===0?'bg-card':'bg-main/30'} hover:bg-accent/20 transition-colors`}>
+                        <td className="py-3 px-4">
+                          {editId === j.id ? (
+                            <div className="flex gap-2">
+                              <input type="text" value={editName} onChange={e=>setEditName(e.target.value)}
+                                onKeyDown={e=>{if(e.key==='Enter')saveEdit();if(e.key==='Escape')setEditId(null);}}
+                                className="flex-1 bg-main border border-neon rounded-lg px-3 py-1.5 text-sm focus:outline-none" autoFocus />
+                              <button onClick={saveEdit} className="text-emerald-400 hover:text-emerald-300 text-lg px-1">✓</button>
+                              <button onClick={()=>setEditId(null)} className="text-gray-400 hover:text-gray-300 text-lg px-1">✕</button>
+                            </div>
+                          ) : (
+                            <span onDoubleClick={()=>startEdit(j)} className="cursor-pointer hover:text-neon transition-colors">{j.nom}</span>
+                          )}
+                        </td>
+                        <td className="text-center py-3 px-2">
+                          {isFantome(j) ? (
+                            <span className="text-xs text-gray-500" title="Ajouté automatiquement si le nombre de joueurs est impair">auto</span>
+                          ) : (
+                            <input type="checkbox" checked={!!pres[j.id]} onChange={()=>toggle(j.id)}
+                              className="w-5 h-5 rounded accent-neon cursor-pointer" />
+                          )}
+                        </td>
+                        <td className="text-center py-3 px-2">
+                          <div className="flex gap-2 justify-center">
+                            <button onClick={()=>startEdit(j)} className="text-gray-400 hover:text-neon transition-colors p-1" title="Modifier">✏️</button>
+                            <button onClick={()=>setDelModal(j)} className="text-gray-400 hover:text-red-400 transition-colors p-1" title="Supprimer">🗑️</button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+
+              <div className="border-t border-gray-700/50 p-4 flex gap-2">
+                <input ref={inputRef} type="text" value={newName} onChange={e=>setNewName(e.target.value)}
+                  onKeyDown={e=>{if(e.key==='Enter')add();}}
+                  placeholder="Nom du nouveau joueur..."
+                  className="flex-1 bg-main border border-gray-600 rounded-xl px-4 py-2.5 text-sm placeholder-gray-500 focus:border-neon focus:outline-none focus:ring-1 focus:ring-neon/30 transition-colors" />
+                <button onClick={add} className="px-5 py-2.5 bg-neon text-main font-bold rounded-xl hover:bg-neon/80 transition-colors active:scale-95">Ajouter</button>
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-3">
+              <Btn onClick={handleGen} v="success">⚡ Générer les équipes ({presentCount} joueurs)</Btn>
+              <Btn onClick={()=>setPage('accueil')} v="secondary">← Retour à l'accueil</Btn>
+            </div>
+          </div>
+
+          <Modal open={!!delModal} title="Supprimer le joueur"
+            message={`Êtes-vous sûr de vouloir supprimer « ${delModal?.nom} » ? Cette action est irréversible.`}
+            confirmText="Supprimer" cancelText="Annuler"
+            onConfirm={()=>del(delModal.id)} onCancel={()=>setDelModal(null)} />
+
+          <Modal open={existModal} title="Équipes déjà générées"
+            message="Des équipes ont déjà été générées aujourd'hui. Que voulez-vous faire ?"
+            onEscape={()=>setExistModal(false)}
+            buttons={[
+              { label: 'Annuler',            onClick: () => setExistModal(false), v: 'secondary' },
+              { label: 'Conserver',          onClick: keep,                       v: 'primary'   },
+              { label: 'Générer de nouveau', onClick: doGen,                      v: 'success'   },
+            ]} />
+        </div>
+      );
+    }
+
+    /* ═══════════════════════════════════════════════
+       COMPOSANT : TABLEAU DE PARTIE (9 colonnes)
+       ═══════════════════════════════════════════════ */
+
+    function PartieTable({ title, pKey, partie, e1, e2, joueurs, onChange, cellProps }) {
+      const scores = partie.scores[pKey] || {};
+      const gs = (id, f) => scores[id]?.[f] ?? null;
+      const pt = (id) => sumSuits(scores[id]);
+
+      const inputCls = "cell-in bg-main/80 border border-gray-600 text-gray-100 focus:border-neon focus:outline-none focus:ring-2 focus:ring-neon/50 transition-colors";
+      const inputHl  = "cell-in bg-amber-900/40 border border-amber-400 text-amber-300 font-bold focus:border-amber-300 focus:outline-none focus:ring-2 focus:ring-amber-400/50 transition-colors";
+
+      /* Cellules de manche ayant déclenché un 15 (confirmé par « Oui ») */
+      const isHl = (id, suitKey) => {
+        const s = scores[id];
+        return !!s && ((s.highlight15Fields || []).includes(suitKey) || s.highlight15Field === suitKey);
+      };
+
+      const t1 = e1.reduce((a,id)=>a+pt(id),0);
+      const t2 = e2.reduce((a,id)=>a+pt(id),0);
+
+      const teamRows = (ids, label, clr, bgLabel, teamTotal, isBest) => {
+        let cum = 0;
+        const rows = ids.map((id, i) => {
+          const j = joueurs.find(x=>x.id===id);
+          const tot = pt(id);
+          cum += tot;
+          return (
+            <tr key={id} className={`border-b border-gray-700/30 ${i%2===0?'bg-card':'bg-main/40'}`}>
+              <td className="font-medium" title={j?.nom || '?'}>
+                {i===0 && <span className={`text-[10px] uppercase tracking-wider ${clr} block -mb-0.5 font-semibold`}>{label}</span>}
+                <span className={`inline-block w-1.5 h-1.5 rounded-full mr-1.5 ${bgLabel}`}></span>
+                {j?.nom || '?'}
+              </td>
+              {SUITS.map(s => (
+                <td key={s.key} className={`in text-center ${isHl(id,s.key) ? 'bg-amber-500/20' : ''}`}>
+                  <input type="number" min="0" inputMode="numeric" className={isHl(id,s.key) ? inputHl : inputCls}
+                    value={gs(id,s.key) == null ? '' : gs(id,s.key)}
+                    onChange={e=>{ const v=e.target.value===''?null:Math.max(0,parseInt(e.target.value)||0); onChange(pKey,id,s.key,v); }}
+                    {...cellProps(cellKey(pKey,id,s.key))} />
+                </td>
+              ))}
+              <td className="text-center bg-calc/60 font-bold text-neon">{tot}</td>
+              <td className="text-center bg-calc/80 font-bold text-white">{cum}</td>
+              <td className="in text-center">
+                <input type="number" min="0" inputMode="numeric" tabIndex={-1} className={inputCls}
+                  value={gs(id,'nb15') == null ? '' : gs(id,'nb15')}
+                  onFocus={e=>e.target.select()}
+                  onChange={e=>{ const v=e.target.value===''?null:Math.max(0,parseInt(e.target.value)||0); onChange(pKey,id,'nb15',v); }} />
+              </td>
+            </tr>
+          );
+        });
+        /* Ligne « Total » de l'équipe : total d'équipe, en rouge et gras s'il est le plus élevé */
+        rows.push(
+          <tr key="total" className="bg-accent/70 border-t border-neon/30">
+            <td className={`font-bold uppercase text-xs tracking-wide ${clr}`}>Total</td>
+            <td colSpan={5}></td>
+            <td colSpan={2} className={`text-center ${isBest ? 'text-red-500 font-extrabold' : 'text-white font-bold'}`}>{teamTotal}</td>
+            <td></td>
+          </tr>
+        );
+        return rows;
+      };
+
+      return (
+        <div className="bg-card rounded-2xl border border-accent/50 overflow-hidden">
+          <h3 className="text-lg font-bold px-4 py-3 bg-accent/40">{title}</h3>
+          <div className="sheet">
+            <table className="sheet-t">
+              <colgroup>
+                <col style={{width:'22%'}} />
+                {SUITS.map(s=><col key={s.key} style={{width:'10.5%'}} />)}
+                <col style={{width:'8.5%'}} /><col style={{width:'8.5%'}} /><col style={{width:'8.5%'}} />
+              </colgroup>
+              <thead>
+                <tr className="bg-accent/60">
+                  <th className="text-left text-gray-400">Joueur</th>
+                  {SUITS.map(s=><SuitTh key={s.key} s={s} />)}
+                  <th className="text-center text-neon bg-calc/40"><Lbl long="Total" short="Tot" /></th>
+                  <th className="text-center text-white bg-calc/60"><Lbl long="T. Éq." short="Éq." /></th>
+                  <th className="text-center text-amber-400"><Lbl long="Nb 15" short="15" /></th>
+                </tr>
+              </thead>
+              <tbody>
+                {teamRows(e1, 'Équipe 1', 'text-cyan-400', 'bg-cyan-400', t1, t1 > t2)}
+                <tr><td colSpan="9" style={{padding:0}} className="h-[3px] bg-gradient-to-r from-transparent via-neon/40 to-transparent"></td></tr>
+                {teamRows(e2, 'Équipe 2', 'text-amber-400', 'bg-amber-400', t2, t2 > t1)}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      );
+    }
+
+    /* ═══════════════════════════════════════════════
+       COMPOSANT : STATISTIQUES DU JOUR
+       ═══════════════════════════════════════════════ */
+
+    function DayStats({ partie, e1, e2, joueurs }) {
+      const ids = [...e1, ...e2];
+
+      const ps = (id) => {
+        const s1=partie.scores.partie1?.[id]||{}, s2=partie.scores.partie2?.[id]||{};
+        const r={};
+        SUITS.forEach(su=>{ r[su.key]=(s1[su.key]||0)+(s2[su.key]||0); });
+        r.total = sumSuits(r);
+        r.nb15 = (s1.nb15||0)+(s2.nb15||0);
+        return r;
+      };
+
+      return (
+        <div className="bg-card rounded-2xl border border-accent/50 overflow-hidden">
+          <div className="sheet">
+            <table className="sheet-t">
+              <colgroup>
+                <col style={{width:'24%'}} />
+                {SUITS.map(s=><col key={s.key} style={{width:'11%'}} />)}
+                <col style={{width:'11%'}} /><col style={{width:'10%'}} />
+              </colgroup>
+              <thead>
+                <tr className="bg-accent/60">
+                  <th className="text-left text-gray-400">Joueur</th>
+                  {SUITS.map(s=><SuitTh key={s.key} s={s} />)}
+                  <th className="text-center text-neon bg-calc/40">Total</th>
+                  <th className="text-center text-amber-400"><Lbl long="Nb 15" short="15" /></th>
+                </tr>
+              </thead>
+              <tbody>
+                {ids.map((id,i)=>{
+                  const j=joueurs.find(x=>x.id===id);
+                  const s=ps(id);
+                  const isE1 = e1.includes(id);
+                  return (
+                    <tr key={id} className={`border-b border-gray-700/40 ${i%2===0?'bg-card':'bg-main/40'}`}>
+                      <td className="font-medium" title={j?.nom||'?'}>
+                        <span className={`inline-block w-2 h-2 rounded-full mr-2 ${isE1?'bg-cyan-400':'bg-amber-400'}`}></span>
+                        {j?.nom||'?'}
+                      </td>
+                      {SUITS.map(su=><td key={su.key} className="text-center text-gray-300">{s[su.key]}</td>)}
+                      <td className="text-center font-bold text-neon bg-calc/40">{s.total}</td>
+                      <td className="text-center text-amber-400">{s.nb15}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      );
+    }
+
+    /* ═══════════════════════════════════════════════
+       PAGE : SCORE BOARD
+       ═══════════════════════════════════════════════ */
+
+    function Scoreboard({ data, setData, partie, setPage }) {
+      const [modal15, setModal15] = useState(null);
+      const cellRefs = useRef({});
+      /* Cellule ayant le focus et sa valeur au moment où elle l'a reçu */
+      const focusInfo = useRef(null);
+
+      const e1 = useMemo(() => partie ? orderTeam(partie.equipe1 || [], data.joueurs) : [], [partie, data.joueurs]);
+      const e2 = useMemo(() => partie ? orderTeam(partie.equipe2 || [], data.joueurs) : [], [partie, data.joueurs]);
+
+      /* Séquence du curseur : manche par manche, en alternant J1 Éq.1, J1 Éq.2, J2 Éq.1, J2 Éq.2…
+         (les positions inexistantes sont sautées), Partie 1 puis Partie 2 */
+      const sequence = useMemo(() => {
+        const seq = [];
+        const n = Math.max(e1.length, e2.length);
+        PKS.forEach(pk => SUITS.forEach(s => {
+          for (let i = 0; i < n; i++) {
+            if (e1[i]) seq.push(cellKey(pk, e1[i], s.key));
+            if (e2[i]) seq.push(cellKey(pk, e2[i], s.key));
+          }
+        }));
+        return seq;
+      }, [e1, e2]);
+
+      if (!partie) {
+        return (
+          <div className="min-h-screen flex flex-col items-center justify-center p-6 anim-fade">
+            <p className="text-gray-400 text-lg mb-6">Aucune partie en cours pour aujourd'hui.</p>
+            <div className="w-full max-w-sm flex flex-col gap-3">
+              <Btn onClick={()=>setPage('joueurs')} v="primary">🃏 Créer une nouvelle partie</Btn>
+              <Btn onClick={()=>setPage('accueil')} v="secondary">🏠 Retour à l'accueil</Btn>
+            </div>
+          </div>
+        );
+      }
+
+      const handleChange = (pKey, joueurId, field, val) => {
+        setData(prev => {
+          const nd = JSON.parse(JSON.stringify(prev));
+          const p = nd.parties.find(x=>x.id===partie.id);
+          if (!p) return prev;
+          if (!p.scores[pKey]) p.scores[pKey] = {};
+          if (!p.scores[pKey][joueurId]) p.scores[pKey][joueurId] = EMPTY_SCORE();
+          p.scores[pKey][joueurId][field] = val;
+          return nd;
+        });
+      };
+
+      const focusCell = (key) => {
+        const el = key && cellRefs.current[key];
+        if (el) el.focus();
+      };
+
+      /* Validation d'une cellule de manche (Entrée, Tab, Maj+Tab ou perte du focus).
+         Le modal Nb 15 ne s'ouvre que si la valeur saisie DANS CETTE MANCHE vient de changer et vaut 15 ou plus ;
+         le cumul des manches n'est jamais pris en compte. */
+      const commit = (key, el, dir) => {
+        const val = el.value === '' ? null : Math.max(0, parseInt(el.value) || 0);
+        const fi = focusInfo.current;
+        const changed = !fi || fi.key !== key || fi.val !== val;
+        if (fi && fi.key === key) fi.val = val;
+        const idx = sequence.indexOf(key);
+        const next = dir === 0 || idx < 0 ? null : (sequence[idx + dir] || null);
+
+        if (changed && val != null && val >= 15) {
+          const [pk, id, suit] = key.split('|');
+          const j = data.joueurs.find(x => x.id === id);
+          const su = SUITS.find(s => s.key === suit);
+          setModal15({ key, pk, id, suit, val, next, nom: j?.nom || '?', suitLabel: su?.label || suit, pLabel: PLABEL[pk] });
+          return;
+        }
+        if (next) focusCell(next);
+      };
+
+      const cellProps = (key) => ({
+        ref: (el) => { if (el) cellRefs.current[key] = el; else delete cellRefs.current[key]; },
+        onFocus: (e) => {
+          const v = e.target.value === '' ? null : Math.max(0, parseInt(e.target.value) || 0);
+          focusInfo.current = { key, val: v };
+          e.target.select();
+        },
+        onKeyDown: (e) => {
+          if (e.key === 'Enter' || e.key === 'Tab') {
+            e.preventDefault();
+            commit(key, e.target, e.shiftKey ? -1 : 1);
+          }
+        },
+        onBlur: (e) => commit(key, e.target, 0),
+      });
+
+      const handleConfirm15 = (confirmed) => {
+        const m = modal15;
+        if (!m) return;
+        if (confirmed) {
+          setData(prev => {
+            const nd = JSON.parse(JSON.stringify(prev));
+            const p = nd.parties.find(x => x.id === partie.id);
+            if (p) {
+              if (!p.scores[m.pk]) p.scores[m.pk] = {};
+              if (!p.scores[m.pk][m.id]) p.scores[m.pk][m.id] = EMPTY_SCORE();
+              const s = p.scores[m.pk][m.id];
+              s.nb15 = (s.nb15 || 0) + 1;
+              /* Mémorise les cellules ayant déclenché un 15 pour les colorer */
+              const hl = new Set(s.highlight15Fields || (s.highlight15Field ? [s.highlight15Field] : []));
+              hl.add(m.suit);
+              s.highlight15Fields = [...hl];
+              delete s.highlight15Field;
+            }
+            return nd;
+          });
+        }
+        setModal15(null);
+        /* Reprise de la séquence normale après la fermeture du modal */
+        setTimeout(() => {
+          if (m.next) focusCell(m.next);
+          else if (focusInfo.current && focusInfo.current.key !== m.key) focusCell(focusInfo.current.key);
+        }, 0);
+      };
+
+      return (
+        <div className="min-h-screen p-4 pb-8 anim-fade">
+          <div className="max-w-[1600px] mx-auto">
+            {/* Section 1 — Parties */}
+            <h2 className="text-xl md:text-2xl font-bold text-center text-neon mb-6">
+              🃏 Parties du {fmtDate(partie.date)}
+            </h2>
+
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 mb-8">
+              <PartieTable title="Partie 1" pKey="partie1" partie={partie} e1={e1} e2={e2} joueurs={data.joueurs} onChange={handleChange} cellProps={cellProps} />
+              <PartieTable title="Partie 2" pKey="partie2" partie={partie} e1={e1} e2={e2} joueurs={data.joueurs} onChange={handleChange} cellProps={cellProps} />
+            </div>
+
+            {/* Séparateur double */}
+            <div className="my-8 mx-4">
+              <div className="border-t-[3px] border-double border-neon/30 mb-1.5"></div>
+              <div className="border-t-[3px] border-double border-neon/30"></div>
+            </div>
+
+            {/* Section 2 — Statistiques du jour */}
+            <h2 className="text-xl md:text-2xl font-bold text-center text-neon mb-6">
+              📊 Statistiques du {fmtDate(partie.date)}
+            </h2>
+            <div className="max-w-5xl mx-auto">
+              <DayStats partie={partie} e1={e1} e2={e2} joueurs={data.joueurs} />
+            </div>
+
+            {/* Boutons */}
+            <div className="mt-8 max-w-sm mx-auto flex flex-col gap-3">
+              <Btn onClick={()=>setPage('statistiques')} v="primary">📊 Statistiques avancées</Btn>
+              <Btn onClick={()=>setPage('accueil')} v="secondary">🏠 Retour à l'accueil</Btn>
+              <Btn onClick={doQuit} v="danger">🚪 Quitter</Btn>
+            </div>
+          </div>
+
+          {/* Modal Nb 15 : focus sur « Oui » à l'ouverture, Tab alterne Oui / Non, Entrée valide */}
+          <Modal open={!!modal15} title="🏆 15 points ?"
+            message={`${modal15?.nom} a inscrit ${modal15?.val} points en ${modal15?.suitLabel} (${modal15?.pLabel}). Y a-t-il eu un 15 dans cette manche ?`}
+            initialFocus={1}
+            onEscape={() => handleConfirm15(false)}
+            buttons={[
+              { label: 'Non',   onClick: () => handleConfirm15(false), v: 'secondary' },
+              { label: 'Oui ✓', onClick: () => handleConfirm15(true),  v: 'primary'   },
+            ]} />
+        </div>
+      );
+    }
+
+    /* ═══════════════════════════════════════════════
+       PAGE : STATISTIQUES AVANCÉES
+       ═══════════════════════════════════════════════ */
+
+    function Section({ title, subtitle, children }) {
+      return (
+        <div className="bg-card rounded-2xl border border-accent/50 overflow-hidden mb-6">
+          <div className="px-4 py-3 bg-accent/40">
+            <h3 className="text-lg font-bold">{title}</h3>
+            {subtitle && <p className="text-xs text-gray-400">{subtitle}</p>}
+          </div>
+          <div className="sheet">{children}</div>
+        </div>
+      );
+    }
+
+    function Stats({ data, setData, setPage, todayId, setPartieId }) {
+      /* Statistiques de saison par joueur (le Fantôme est exclu des classements) */
+      const season = useMemo(() => {
+        const players = {};
+        data.joueurs.filter(j => !isFantome(j)).forEach(j => {
+          players[j.id] = { id: j.id, nom: j.nom, parties: 0, nb15: 0, total: 0, presences: 0, absences: 0, history: [],
+                            ...Object.fromEntries(SUITS.map(s => [s.key, 0])) };
+        });
+
+        const sessions = [...data.parties].sort((a, b) => a.date < b.date ? -1 : a.date > b.date ? 1 : 0);
+        sessions.forEach(partie => {
+          const teamIds = [...(partie.equipe1 || []), ...(partie.equipe2 || [])];
+          const presRec = data.presences?.[partie.date];
+          const played = PKS.filter(pk => partiePlayed(partie, pk));
+
+          Object.values(players).forEach(r => {
+            if (teamIds.includes(r.id)) {
+              r.presences += 1;
+              const parts = played.map(pk => {
+                const s = partie.scores[pk]?.[r.id] || {};
+                const tot = sumSuits(s);
+                SUITS.forEach(su => { r[su.key] += s[su.key] || 0; });
+                r.nb15 += s.nb15 || 0;
+                r.total += tot;
+                return { pk, s, total: tot, nb15: s.nb15 || 0 };
+              });
+              r.parties += played.length;
+              r.history.push({ date: partie.date, present: true, parts });
+            } else if (presRec && r.id in presRec) {
+              r.absences += 1;
+              r.history.push({ date: partie.date, present: false, parts: [] });
+            }
+          });
+        });
+
+        const list = Object.values(players);
+        const actifs = list.filter(r => r.parties > 0);
+        const maxTotal = Math.max(0, ...actifs.map(r => r.total));
+        const leaders = new Set(maxTotal > 0 ? actifs.filter(r => r.total === maxTotal).map(r => r.id) : []);
+        const bestSuit = {};
+        SUITS.forEach(s => { bestSuit[s.key] = Math.max(0, ...actifs.map(r => r[s.key])); });
+
+        return {
+          list, actifs, leaders, bestSuit,
+          brut: [...actifs].sort((a, b) => b.total - a.total),
+          moyenne: actifs.map(r => ({ ...r, avg: r.total / r.parties })).sort((a, b) => b.avg - a.avg),
+        };
+      }, [data]);
+
+      const [ficheId, setFicheId] = useState(() => season.brut[0]?.id || season.list[0]?.id || '');
+      const fiche = season.list.find(r => r.id === ficheId) || null;
+
+      const exportJSON = () => {
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = `cartes_pointage_${todayISO()}.json`;
+        document.body.appendChild(a); a.click();
+        document.body.removeChild(a); URL.revokeObjectURL(url);
+      };
+
+      const importJSON = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          try {
+            const imp = JSON.parse(ev.target.result);
+            if (imp.joueurs && Array.isArray(imp.joueurs) && imp.parties && Array.isArray(imp.parties)) {
+              setData({ joueurs: imp.joueurs, parties: imp.parties, presences: imp.presences || {} });
+              alert('Données importées avec succès !');
+            } else { alert('Format de fichier invalide.'); }
+          } catch (err) { alert('Erreur lors de l\'importation.'); }
+        };
+        reader.readAsText(file);
+        e.target.value = '';
+      };
+
+      const medals = ['🏆','🥈','🥉'];
+      const leaderRow = (id) => season.leaders.has(id) ? 'bg-yellow-400/15 shadow-[inset_4px_0_0_#facc15]' : '';
+      const nameCell = (r, i) => (
+        <td className="font-medium" title={r.nom}>
+          {season.leaders.has(r.id) ? <span className="mr-1">👑</span> : (i < 3 && <span className="mr-1">{medals[i]}</span>)}
+          {r.nom}
+        </td>
+      );
+      const leaderNames = season.brut.filter(r => season.leaders.has(r.id));
+
+      return (
+        <div className="min-h-screen p-4 pb-8 anim-fade">
+          <div className="max-w-4xl mx-auto">
+            <h2 className="text-xl md:text-2xl font-bold text-center text-neon mb-2">📊 Statistiques avancées</h2>
+            <p className="text-gray-500 text-center text-sm mb-6">
+              {data.parties.length} session{data.parties.length!==1?'s':''} enregistrée{data.parties.length!==1?'s':''}
+            </p>
+
+            {season.actifs.length === 0 ? (
+              <div className="bg-card rounded-2xl border border-accent/50 p-8 text-center text-gray-500 mb-6">
+                <p className="text-4xl mb-3">📭</p><p>Aucune donnée statistique disponible.</p>
+              </div>
+            ) : (
+              <>
+                {leaderNames.length > 0 && (
+                  <div className="bg-yellow-400/15 border border-yellow-400/60 rounded-2xl px-4 py-3 mb-6 text-center">
+                    <span className="text-yellow-300 font-bold">👑 Meneur de la saison : </span>
+                    <span className="font-bold text-white">{leaderNames.map(r => r.nom).join(', ')}</span>
+                    <span className="text-gray-300"> — {leaderNames[0].total} points</span>
+                  </div>
+                )}
+
+                {/* 1. Meilleur pointage brut */}
+                <Section title="🥇 Meilleur pointage brut" subtitle="Pointage cumulé de la saison">
+                  <table className="sheet-t">
+                    <colgroup>
+                      <col style={{width:'40%'}} /><col style={{width:'20%'}} /><col style={{width:'20%'}} /><col style={{width:'20%'}} />
+                    </colgroup>
+                    <thead>
+                      <tr className="bg-accent/60">
+                        <th className="text-left text-gray-400">Joueur</th>
+                        <th className="text-center text-gray-400">Parties</th>
+                        <th className="text-center text-amber-400"><Lbl long="Nb 15" short="15" /></th>
+                        <th className="text-center text-neon bg-calc/40">Total</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {season.brut.map((r,i)=>(
+                        <tr key={r.id} className={`border-b border-gray-700/40 ${i%2===0?'bg-card':'bg-main/40'} ${leaderRow(r.id)}`}>
+                          {nameCell(r, i)}
+                          <td className="text-center text-gray-400">{r.parties}</td>
+                          <td className="text-center text-amber-400">{r.nb15}</td>
+                          <td className="text-center font-bold text-neon bg-calc/40">{r.total}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </Section>
+
+                {/* 2. Meilleur pointage par partie */}
+                <Section title="🎯 Meilleur pointage par partie" subtitle="Moyenne = pointage cumulé ÷ nombre de parties">
+                  <table className="sheet-t">
+                    <colgroup>
+                      <col style={{width:'40%'}} /><col style={{width:'20%'}} /><col style={{width:'20%'}} /><col style={{width:'20%'}} />
+                    </colgroup>
+                    <thead>
+                      <tr className="bg-accent/60">
+                        <th className="text-left text-gray-400">Joueur</th>
+                        <th className="text-center text-gray-400">Parties</th>
+                        <th className="text-center text-gray-400">Total</th>
+                        <th className="text-center text-neon bg-calc/40">Moyenne</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {season.moyenne.map((r,i)=>(
+                        <tr key={r.id} className={`border-b border-gray-700/40 ${i%2===0?'bg-card':'bg-main/40'} ${leaderRow(r.id)}`}>
+                          {nameCell(r, i)}
+                          <td className="text-center text-gray-400">{r.parties}</td>
+                          <td className="text-center text-gray-300">{r.total}</td>
+                          <td className="text-center font-bold text-neon bg-calc/40">{fmt1(r.avg)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </Section>
+
+                {/* 3. Meilleur par manche */}
+                <Section title="🃏 Meilleur par manche" subtitle="Cumul de la saison par manche — le meilleur de chaque colonne est surligné en orange">
+                  <table className="sheet-t">
+                    <colgroup>
+                      <col style={{width:'30%'}} />
+                      {SUITS.map(s=><col key={s.key} style={{width:'14%'}} />)}
+                    </colgroup>
+                    <thead>
+                      <tr className="bg-accent/60">
+                        <th className="text-left text-gray-400">Joueur</th>
+                        {SUITS.map(s=><SuitTh key={s.key} s={s} />)}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {season.brut.map((r,i)=>(
+                        <tr key={r.id} className={`border-b border-gray-700/40 ${i%2===0?'bg-card':'bg-main/40'} ${leaderRow(r.id)}`}>
+                          <td className="font-medium" title={r.nom}>
+                            {season.leaders.has(r.id) && <span className="mr-1">👑</span>}{r.nom}
+                          </td>
+                          {SUITS.map(s => {
+                            const best = season.bestSuit[s.key] > 0 && r[s.key] === season.bestSuit[s.key];
+                            return <td key={s.key} className={`text-center ${best ? 'bg-orange-500 text-white font-bold' : 'text-gray-300'}`}>{r[s.key]}</td>;
+                          })}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </Section>
+
+                {/* Fiche joueur : détail regroupé par date */}
+                <Section title="🗓️ Fiche du joueur" subtitle="Présences, absences et pointage de chaque manche, regroupés par date">
+                  <div className="p-4 flex flex-col gap-4">
+                    <select value={ficheId} onChange={e=>setFicheId(e.target.value)}
+                      className="bg-main border border-gray-600 rounded-xl px-4 py-2.5 text-sm focus:border-neon focus:outline-none">
+                      {[...season.list].sort((a,b)=>a.nom.localeCompare(b.nom,'fr')).map(r => <option key={r.id} value={r.id}>{r.nom}</option>)}
+                    </select>
+                    {fiche && (
+                      <div className={`grid grid-cols-3 sm:grid-cols-6 gap-2 text-center ${season.leaders.has(fiche.id) ? 'ring-2 ring-yellow-400 rounded-xl p-2' : ''}`}>
+                        {[
+                          ['Présences', fiche.presences],
+                          ['Absences', fiche.absences],
+                          ['Parties', fiche.parties],
+                          ['Nb 15', fiche.nb15],
+                          ['Total', fiche.total],
+                          ['Moyenne', fiche.parties ? fmt1(fiche.total / fiche.parties) : '–'],
+                        ].map(([l, v]) => (
+                          <div key={l} className="bg-main/60 rounded-xl py-2">
+                            <div className="text-[11px] text-gray-400 whitespace-nowrap">{l}</div>
+                            <div className="font-bold text-neon">{v}</div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  {fiche && fiche.history.length > 0 && (
+                    <table className="sheet-t">
+                      <colgroup>
+                        <col style={{width:'16%'}} /><col style={{width:'12%'}} />
+                        {SUITS.map(s=><col key={s.key} style={{width:'10.5%'}} />)}
+                        <col style={{width:'10.5%'}} /><col style={{width:'9%'}} />
+                      </colgroup>
+                      <thead>
+                        <tr className="bg-accent/60">
+                          <th className="text-left text-gray-400">Date</th>
+                          <th className="text-center text-gray-400">Partie</th>
+                          {SUITS.map(s=><SuitTh key={s.key} s={s} />)}
+                          <th className="text-center text-neon bg-calc/40">Total</th>
+                          <th className="text-center text-amber-400"><Lbl long="Nb 15" short="15" /></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {[...fiche.history].reverse().map(h => {
+                          if (!h.present || h.parts.length === 0) {
+                            return (
+                              <tr key={h.date} className="border-b border-gray-700/40">
+                                <td className="text-gray-300">{fmtDate(h.date)}</td>
+                                <td colSpan={8} className={`text-center italic ${h.present ? 'text-gray-400' : 'text-red-400'}`}>
+                                  {h.present ? 'Présent — aucune manche saisie' : 'Absent'}
+                                </td>
+                              </tr>
+                            );
+                          }
+                          return h.parts.map((p, k) => (
+                            <tr key={h.date + p.pk} className={`${k === h.parts.length - 1 ? 'border-b border-gray-700/60' : ''}`}>
+                              {k === 0 && <td rowSpan={h.parts.length} className="text-gray-300 align-top">{fmtDate(h.date)}</td>}
+                              <td className="text-center text-gray-400">{k + 1}</td>
+                              {SUITS.map(su => <td key={su.key} className="text-center text-gray-300">{p.s[su.key] ?? '–'}</td>)}
+                              <td className="text-center font-bold text-neon bg-calc/40">{p.total}</td>
+                              <td className="text-center text-amber-400">{p.nb15}</td>
+                            </tr>
+                          ));
+                        })}
+                      </tbody>
+                    </table>
+                  )}
+                </Section>
+              </>
+            )}
+
+            <div className="max-w-sm mx-auto flex flex-col gap-3">
+              {todayId && (
+                <Btn onClick={()=>{ setPartieId(todayId); setPage('scoreboard'); }} v="primary">🃏 Retour au Score Board</Btn>
+              )}
+              <Btn onClick={exportJSON} v="secondary">📥 Exporter les données (JSON)</Btn>
+              <label className="w-full cursor-pointer">
+                <input type="file" accept=".json" onChange={importJSON} className="hidden" />
+                <div className="w-full min-h-[48px] px-6 py-3.5 rounded-xl font-semibold text-base transition-all duration-200 flex items-center justify-center gap-2 active:scale-[0.97] bg-card border border-gray-600 text-gray-300 hover:border-gray-400 hover:text-white">
+                  📤 Importer des données (JSON)
+                </div>
+              </label>
+              <Btn onClick={()=>setPage('accueil')} v="secondary">🏠 Retour à l'accueil</Btn>
+              <Btn onClick={doQuit} v="danger">🚪 Quitter</Btn>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    /* ═══════════════════════════════════════════════
+       APP PRINCIPAL
+       ═══════════════════════════════════════════════ */
+
+    function App() {
+      const [page, setPage] = useState('accueil');
+      const [data, setData] = useState(() => load());
+      const [partieId, setPartieId] = useState(() => {
+        const d = load();
+        const tp = d.parties.find(p => p.date === todayISO());
+        return tp ? tp.id : null;
+      });
+
+      // Auto-save
+      useEffect(() => { save(data); }, [data]);
+
+      // Demande au navigateur de ne jamais effacer automatiquement les données locales
+      useEffect(() => {
+        try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch (e) {}
+      }, []);
+
+      const curPartie = useMemo(() => data.parties.find(p => p.id === partieId) || null, [data, partieId]);
+      const todayP = useMemo(() => data.parties.find(p => p.date === todayISO()), [data]);
+
+      switch (page) {
+        case 'joueurs':
+          return <Joueurs data={data} setData={setData} setPage={setPage} setPartieId={setPartieId} />;
+        case 'scoreboard':
+          return <Scoreboard data={data} setData={setData} partie={curPartie} setPage={setPage} />;
+        case 'statistiques':
+          return <Stats data={data} setData={setData} setPage={setPage} todayId={todayP?.id} setPartieId={setPartieId} />;
+        default:
+          return <Accueil setPage={setPage} />;
+      }
+    }
+
+    /* ═══════════════════════════════════════════════
+       RENDU
+       ═══════════════════════════════════════════════ */
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(React.createElement(App));
+  </script>
+</body>
+</html>
