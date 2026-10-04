@@ -49,4 +49,4 @@ La saisie en touchant les trous (plus haut) supprimerait complètement la questi
 
 ## À lire
 
-- `Pétanque Atout - modifications_20260925.doc` : modifications demandées le 25 septembre 2026, pas encore analysées.
+- `Pétanque Atout - modifications_20260925.doc` : lu et comparé ; voir la section correspondante dans `Corrections.md`.

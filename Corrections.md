@@ -124,6 +124,32 @@ L'application fait déjà ce qu'il faut : une partie dont aucune manche n'a ét�
 
 ---
 
+## Document du 25 septembre 2026 (`Pétanque Atout - modifications_20260925.doc`)
+
+Comparaison avec l'application actuelle et les décisions ci-dessus.
+
+**Déjà en place dans `index.html`** (à conserver pendant les corrections)
+
+- Ligne « Total » par équipe dans la feuille de pointage, total de l'équipe qui mène en rouge et en gras ; pas de ligne de totaux inutile, ni dans la feuille ni dans les statistiques du jour.
+- Fantôme toujours le dernier de son équipe.
+- Fenêtre du 15 sensible à la touche Tab (Oui / Non).
+- Déplacement du curseur : J1 Éq.1, J1 Éq.2, J2 Éq.1, J2 Éq.2… manche par manche, jusqu'au dernier joueur de l'équipe 2.
+- Statistiques avancées : meilleur pointage brut et meilleur pointage par partie (ordre décroissant), meilleur de chaque manche en orange, présences / absences, totaux de chaque manche par partie, 15 par partie et cumulés, nombre de parties, détail groupé par date.
+- En-têtes de colonnes sur une seule ligne, sans défilement horizontal (abréviations sur petit écran).
+
+**Remplacé par des décisions plus récentes**
+
+- *Boîte de dialogue « Annuler / Conserver / Générer de nouveau »* quand des équipes existent déjà pour la journée → remplacée par le **#6** : plusieurs parties par jour, sans question ; « Conserver » devient le bouton « ▶ Continuer la partie en cours ».
+- *Fenêtre du 15 dès que le total de la manche atteint 15, Nb 15 + 1 à chaque « Oui »* → remplacée par le **comptage des 15 (#2 à #4)** : le 15 est déduit du total selon les règles, question seulement en cas de doute, au plus un 15 par joueur et par manche (il n'y a qu'un trou à 15).
+
+**À surveiller pendant les corrections**
+
+- **#6** : avec plusieurs parties dans une journée, la fiche du joueur reste **groupée par date** et montre chacune des parties de cette date.
+- **#14** : les cases agrandies pour la tablette doivent continuer à tenir **sans défilement horizontal**, en-têtes sur une seule ligne.
+- **#12** : l'application ne doit dépendre d'aucune connexion Internet.
+
+---
+
 ## En suspens
 
 - ⏸️ **#5 — « Importer des données » remplace tout sans confirmation** : un mauvais fichier efface toutes les données. *On y reviendra plus tard.*
