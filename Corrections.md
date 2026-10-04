@@ -81,6 +81,14 @@ La numérotation est celle de l'analyse du fichier (17 points).
 
 ---
 
+## #13 — Démarrage rapide 📝
+
+- Le code et l'apparence (Babel et Tailwind) sont préparés **une seule fois**, au moment des corrections, au lieu d'être recalculés à chaque ouverture.
+- Même apparence et même fonctionnement ; `lib/` ne contient plus que React (≈ 140 Ko au lieu de plus de 3 Mo).
+- Si le code de `index.html` est modifié à la main plus tard, il faudra refaire cette préparation (demander à Claude).
+
+---
+
 ## #9 — Parties incomplètes : aucun changement ✔️
 
 Les parties incomplètes sont rares, et c'est habituellement la 2e partie qui n'est pas jouée du tout : tous les joueurs sont alors traités également.
@@ -96,7 +104,6 @@ L'application fait déjà ce qu'il faut : une partie dont aucune manche n'a ét�
 
 ## À décider
 
-- ❓ **#13 — Démarrage lent sur téléphone** : Babel compile le code à chaque ouverture.
 - ❓ **#14 — Cases petites sur téléphone** : le texte descend à 11 pixels sur écran étroit.
 - ❓ **#15 — Le bouton « Quitter »** ne fonctionne pas dans la plupart des navigateurs.
 - ❓ **#16 — Pas de notion de saison** : les statistiques s'accumulent depuis le début.
