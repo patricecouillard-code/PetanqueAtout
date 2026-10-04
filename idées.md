@@ -12,6 +12,9 @@ Au lieu de taper le total d'un joueur, on touche les trous où ses boules sont t
 ### Saisie joueur par joueur (téléphone)
 Sur petit écran, afficher seulement le joueur dont c'est le tour, avec une grande case, puis passer automatiquement au suivant dans l'ordre de jeu. Le tableau complet reste accessible pour consulter et corriger. Irait bien avec la saisie en touchant les trous.
 
+### Classement « tous les temps »
+Un classement qui additionne toutes les saisons. Pas prioritaire : idée conservée pour plus tard.
+
 ### Nombres négatifs ✅ fait
 Il faut **absolument** pouvoir saisir un pointage négatif.
 

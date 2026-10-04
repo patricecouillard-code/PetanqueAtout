@@ -99,6 +99,18 @@ La numérotation est celle de l'analyse du fichier (17 points).
 
 ---
 
+## #16 — Saisons 📝
+
+- Une saison va habituellement d'**octobre à mai-juin** de l'année suivante.
+- Bouton **« Nouvelle saison »** (page des statistiques) : la nouvelle saison commence à la date du jour. Pas de date fixe imposée.
+- Nom automatique d'après la date de début : une saison commencée en octobre 2026 s'appelle **« Saison 2026-2027 »**.
+- Chaque partie appartient à la saison en cours au moment où elle est jouée.
+- Les statistiques (meneur, classements, meilleur par manche, fiche du joueur) portent sur **une saison à la fois**, choisie dans une liste ; par défaut, la saison en cours.
+- Les **anciennes saisons restent consultables**.
+- Données actuelles : toutes les parties déjà enregistrées forment la première saison.
+
+---
+
 ## #9 — Parties incomplètes : aucun changement ✔️
 
 Les parties incomplètes sont rares, et c'est habituellement la 2e partie qui n'est pas jouée du tout : tous les joueurs sont alors traités également.
@@ -115,5 +127,4 @@ L'application fait déjà ce qu'il faut : une partie dont aucune manche n'a ét�
 
 ## À décider
 
-- ❓ **#16 — Pas de notion de saison** : les statistiques s'accumulent depuis le début.
 - ❓ **#17 — Le vainqueur de chaque partie** n'est enregistré nulle part.
