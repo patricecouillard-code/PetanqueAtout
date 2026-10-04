@@ -458,9 +458,9 @@ function Accueil({ data, setPage, enCours, openPartie, onSaveQuit, ghStatus }) {
       <div className="text-center mb-10">
         <div className="text-7xl mb-4 card-float">🃏</div>
         <h1 className="text-4xl sm:text-5xl font-extrabold bg-gradient-to-r from-neon via-cyan-300 to-neon bg-clip-text text-transparent leading-tight">
-          Pointage de Cartes
+          Pointage Pétanque Atout
         </h1>
-        <p className="text-gray-500 mt-3 text-sm tracking-widest uppercase">Pétanque Atout · parties &amp; statistiques</p>
+        <p className="text-gray-500 mt-3 text-sm tracking-widest uppercase">Parties &amp; statistiques</p>
       </div>
       <div className="w-full max-w-sm flex flex-col gap-4">
         {enCours && (
