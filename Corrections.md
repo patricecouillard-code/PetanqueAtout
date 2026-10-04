@@ -89,6 +89,16 @@ La numérotation est celle de l'analyse du fichier (17 points).
 
 ---
 
+## #14 — Tablette et téléphone 📝
+
+- **Tablette** (appareil habituel) : tableau complet, adapté aux doigts — cases d'au moins 44 pixels de haut, chiffres d'au moins 16 pixels.
+- **Téléphone** : **mode paysage obligatoire**.
+  - Application installée sur Android : l'écran est verrouillé en paysage.
+  - Ailleurs (navigateur, iPhone) : si le téléphone est à la verticale, un écran « Tournez votre téléphone » cache l'application jusqu'à ce qu'on le tourne.
+  - La tablette n'est pas touchée par cette règle : elle fonctionne dans les deux sens.
+
+---
+
 ## #9 — Parties incomplètes : aucun changement ✔️
 
 Les parties incomplètes sont rares, et c'est habituellement la 2e partie qui n'est pas jouée du tout : tous les joueurs sont alors traités également.
@@ -104,7 +114,6 @@ L'application fait déjà ce qu'il faut : une partie dont aucune manche n'a ét�
 
 ## À décider
 
-- ❓ **#14 — Cases petites sur téléphone** : le texte descend à 11 pixels sur écran étroit.
 - ❓ **#15 — Le bouton « Quitter »** ne fonctionne pas dans la plupart des navigateurs.
 - ❓ **#16 — Pas de notion de saison** : les statistiques s'accumulent depuis le début.
 - ❓ **#17 — Le vainqueur de chaque partie** n'est enregistré nulle part.
