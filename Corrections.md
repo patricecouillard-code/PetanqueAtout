@@ -40,6 +40,20 @@ La numérotation est celle de l'analyse du fichier (17 points).
 
 ---
 
+## #7 — Retouches 📝
+
+- Enlever la mention **« (retiré) »** dans les statistiques : le nom s'affiche normalement.
+- Enlever la section **« Joueurs retirés »** de la page des joueurs.
+- Si on ajoute un joueur portant le nom d'un joueur effacé de la liste, il revient **automatiquement** avec toutes ses statistiques, sans question.
+
+---
+
+## #8 — Doublons de noms 📝
+
+- Renommer un joueur avec le nom d'un autre joueur qui existe déjà est **refusé**, avec un message (même règle que pour l'ajout).
+
+---
+
 ## Le Fantôme 📝
 
 **Rôle** : le Fantôme sert à équilibrer les équipes quand le nombre de joueurs est impair. Les autres joueurs jouent un tour chacun à sa place.
@@ -61,7 +75,6 @@ La numérotation est celle de l'analyse du fichier (17 points).
 
 ## À décider
 
-- ❓ **#8 — Renommer un joueur ne vérifie pas les doublons** (deux joueurs peuvent avoir le même nom). *Le cas « Fantôme » est réglé plus haut.*
 - ❓ **#9 — Moyennes faussées par les parties incomplètes** : une partie compte comme « jouée » dès qu'une seule manche est saisie.
 - ❓ **#10 — Aucune vérification des limites** : rien n'empêche un 60 en Cœur (maximum 55), ni un total impossible.
 - ❓ **#12 — Le dossier `lib/` manque** dans le dépôt : la page reste blanche sans lui.
