@@ -102,7 +102,7 @@ La numérotation est celle de l'analyse du fichier (17 points).
 ## #15 — « Sauvegarder et quitter » : données sur GitHub 📝
 
 - Le bouton « Quitter » devient **« Sauvegarder et quitter »** : il envoie toutes les données (joueurs, présences, parties, saisons) dans un fichier sur GitHub, puis affiche **« ✔ Sauvegardé sur GitHub »**.
-- Les données vont dans un **dépôt privé séparé** (proposé : `PetanqueAtout-donnees`) : l'application reste dans le dépôt public, les noms et pointages restent privés.
+- Les données vont dans un **dépôt privé séparé** (`PetanqueAtout-Data`, créé le 4 octobre 2026) : l'application reste dans le dépôt public, les noms et pointages restent privés.
 - **Sans Internet** : l'envoi est mis en attente et se fait tout seul dès que l'appareil retrouve une connexion. Aucune question.
 - Accès par un **jeton GitHub** limité à ce seul dépôt de données, saisi une fois par appareil (révocable en un clic si un appareil est perdu).
 - Plus tard : récupérer les données sur un autre appareil, et les partager avec les 2 autres personnes.
@@ -110,7 +110,7 @@ La numérotation est celle de l'analyse du fichier (17 points).
 
 **Préparatifs à faire par Patrice (Claude guidera pas à pas)**
 
-1. Créer le dépôt **privé** `PetanqueAtout-donnees` sur GitHub.
+1. ✅ Créer le dépôt **privé** `PetanqueAtout-Data` sur GitHub.
 2. Créer un jeton GitHub limité à ce dépôt (droit « Contents : lecture et écriture »).
 
 ---
