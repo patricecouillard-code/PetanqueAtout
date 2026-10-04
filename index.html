@@ -92,7 +92,7 @@
         const raw = localStorage.getItem(STORAGE_KEY);
         if (raw) {
           const d = JSON.parse(raw);
-          return migrateScores({ joueurs: d.joueurs || [], parties: d.parties || [], presences: d.presences || {} });
+          return migrateData({ joueurs: d.joueurs || [], parties: d.parties || [], presences: d.presences || {} });
         }
       } catch (e) { console.error(e); }
       return { joueurs: [], parties: [], presences: {} };
@@ -140,6 +140,9 @@
     ];
 
     const isFantome = (j) => !!j && j.nom === FANTOME;
+    /* Un joueur « retiré » n'apparaît plus dans la liste ni dans les tirages,
+       mais ses pointages et statistiques sont conservés intégralement */
+    const isRetire = (j) => !!j && !!j.retire;
 
     const sumSuits = (s) => SUITS.reduce((a, su) => a + ((s && s[su.key]) || 0), 0);
 
@@ -223,6 +226,21 @@
       }));
       return data;
     }
+
+    /* Joueurs supprimés avec l'ancienne version : leurs pointages existent encore dans les parties.
+       On les recrée comme joueurs retirés pour qu'ils réapparaissent dans les statistiques. */
+    function recoverPlayers(data) {
+      const known = new Set(data.joueurs.map(j => j.id));
+      let n = data.joueurs.filter(j => /^Joueur supprimé \d+$/.test(j.nom)).length;
+      data.parties.forEach(p => [...(p.equipe1 || []), ...(p.equipe2 || [])].forEach(id => {
+        if (known.has(id)) return;
+        known.add(id);
+        data.joueurs.push({ id, nom: `Joueur supprimé ${++n}`, retire: true });
+      }));
+      return data;
+    }
+
+    const migrateData = (data) => recoverPlayers(migrateScores(data));
 
     /* ═══════════════════════════════════════════════
        COMPOSANTS PARTAGÉS
@@ -349,7 +367,10 @@
         return p;
       });
       const [delModal, setDelModal] = useState(null);
+      const [reactModal, setReactModal] = useState(null);
       const [existModal, setExistModal] = useState(false);
+      const actifs = data.joueurs.filter(j => !isRetire(j));
+      const retires = data.joueurs.filter(j => isRetire(j) && !isFantome(j));
       const inputRef = useRef(null);
 
       useEffect(() => {
@@ -367,7 +388,9 @@
       const add = () => {
         const n = newName.trim();
         if (!n) return;
-        if (data.joueurs.some(j => j.nom.toLowerCase() === n.toLowerCase())) { alert('Ce joueur existe déjà.'); return; }
+        const same = data.joueurs.find(j => j.nom.toLowerCase() === n.toLowerCase());
+        if (same && isRetire(same) && !isFantome(same)) { setReactModal(same); return; }
+        if (same) { alert('Ce joueur existe déjà.'); return; }
         const id = uid();
         setData(p => ({ ...p, joueurs: [...p.joueurs, { id, nom: n }] }));
         setPres(p => ({ ...p, [id]: true }));
@@ -375,10 +398,18 @@
         inputRef.current?.focus();
       };
 
-      const del = (id) => {
-        setData(p => ({ ...p, joueurs: p.joueurs.filter(j => j.id !== id) }));
-        setPres(p => { const u = { ...p }; delete u[id]; return u; });
+      /* Retirer un joueur : il quitte la liste, mais rien de ses données n'est effacé */
+      const retirer = (id) => {
+        setData(p => ({ ...p, joueurs: p.joueurs.map(j => j.id === id ? { ...j, retire: true } : j) }));
+        setPres(p => ({ ...p, [id]: false }));
         setDelModal(null);
+      };
+
+      const reintegrer = (id) => {
+        setData(p => ({ ...p, joueurs: p.joueurs.map(j => j.id === id ? { ...j, retire: false } : j) }));
+        setPres(p => ({ ...p, [id]: true }));
+        setReactModal(null);
+        setNewName('');
       };
 
       const startEdit = (j) => { setEditId(j.id); setEditName(j.nom); };
@@ -394,12 +425,12 @@
         setPres(p => ({ ...p, [id]: v }));
         storePresence(id, v);
       };
-      const presentCount = data.joueurs.filter(j => !isFantome(j) && pres[j.id]).length;
+      const presentCount = actifs.filter(j => !isFantome(j) && pres[j.id]).length;
 
       const existing = data.parties.find(p => p.date === today);
 
       const doGen = () => {
-        const reels = data.joueurs.filter(j => !isFantome(j));
+        const reels = actifs.filter(j => !isFantome(j));
         const ids = reels.filter(j => pres[j.id]).map(j => j.id);
         if (ids.length < 2) { alert('Il faut au moins 2 joueurs présents.'); setExistModal(false); return; }
 
@@ -407,6 +438,7 @@
         if (ids.length % 2 !== 0) {
           let f = joueurs.find(isFantome);
           if (!f) { f = { id: uid(), nom: FANTOME }; joueurs.push(f); }
+          else if (isRetire(f)) { f = { ...f, retire: false }; joueurs[joueurs.findIndex(j => j.id === f.id)] = f; }
           ids.push(f.id);
         }
 
@@ -446,10 +478,10 @@
         <div className="min-h-screen p-4 pb-8 anim-fade">
           <div className="max-w-lg mx-auto">
             <h2 className="text-2xl font-bold text-neon mb-1 text-center">👥 Gestion des joueurs</h2>
-            <p className="text-gray-500 text-center text-sm mb-6">{data.joueurs.length} joueur{data.joueurs.length!==1?'s':''} · {presentCount} présent{presentCount!==1?'s':''}</p>
+            <p className="text-gray-500 text-center text-sm mb-6">{actifs.length} joueur{actifs.length!==1?'s':''} · {presentCount} présent{presentCount!==1?'s':''}</p>
 
             <div className="bg-card rounded-2xl border border-accent/50 overflow-hidden mb-6">
-              {data.joueurs.length === 0 ? (
+              {actifs.length === 0 ? (
                 <div className="p-8 text-center text-gray-500">
                   <p className="text-4xl mb-3">👤</p><p>Aucun joueur. Ajoutez-en ci-dessous.</p>
                 </div>
@@ -463,7 +495,7 @@
                     </tr>
                   </thead>
                   <tbody>
-                    {data.joueurs.map((j, i) => (
+                    {actifs.map((j, i) => (
                       <tr key={j.id} className={`border-t border-gray-700/50 ${i%2===0?'bg-card':'bg-main/30'} hover:bg-accent/20 transition-colors`}>
                         <td className="py-3 px-4">
                           {editId === j.id ? (
@@ -489,7 +521,7 @@
                         <td className="text-center py-3 px-2">
                           <div className="flex gap-2 justify-center">
                             <button onClick={()=>startEdit(j)} className="text-gray-400 hover:text-neon transition-colors p-1" title="Modifier">✏️</button>
-                            <button onClick={()=>setDelModal(j)} className="text-gray-400 hover:text-red-400 transition-colors p-1" title="Supprimer">🗑️</button>
+                            <button onClick={()=>setDelModal(j)} className="text-gray-400 hover:text-red-400 transition-colors p-1" title="Retirer de la liste">🗑️</button>
                           </div>
                         </td>
                       </tr>
@@ -507,16 +539,37 @@
               </div>
             </div>
 
+            {retires.length > 0 && (
+              <details className="bg-card rounded-2xl border border-accent/50 overflow-hidden mb-6">
+                <summary className="px-4 py-3 cursor-pointer text-sm text-gray-400 hover:text-gray-200">
+                  Joueurs retirés ({retires.length}) — leurs statistiques sont conservées
+                </summary>
+                <ul>
+                  {retires.map(j => (
+                    <li key={j.id} className="flex items-center justify-between gap-2 px-4 py-2 border-t border-gray-700/50">
+                      <span className="text-gray-400">{j.nom}</span>
+                      <button onClick={()=>reintegrer(j.id)} className="text-sm text-neon hover:underline">Réintégrer</button>
+                    </li>
+                  ))}
+                </ul>
+              </details>
+            )}
+
             <div className="flex flex-col gap-3">
               <Btn onClick={handleGen} v="success">⚡ Générer les équipes ({presentCount} joueurs)</Btn>
               <Btn onClick={()=>setPage('accueil')} v="secondary">← Retour à l'accueil</Btn>
             </div>
           </div>
 
-          <Modal open={!!delModal} title="Supprimer le joueur"
-            message={`Êtes-vous sûr de vouloir supprimer « ${delModal?.nom} » ? Cette action est irréversible.`}
-            confirmText="Supprimer" cancelText="Annuler"
-            onConfirm={()=>del(delModal.id)} onCancel={()=>setDelModal(null)} />
+          <Modal open={!!delModal} title="Retirer le joueur"
+            message={`« ${delModal?.nom} » sera retiré de la liste des joueurs. Ses pointages et ses statistiques sont conservés, et vous pourrez le réintégrer plus tard.`}
+            confirmText="Retirer" cancelText="Annuler"
+            onConfirm={()=>retirer(delModal.id)} onCancel={()=>setDelModal(null)} />
+
+          <Modal open={!!reactModal} title="Joueur retiré"
+            message={`« ${reactModal?.nom} » avait été retiré de la liste. Voulez-vous le réintégrer avec toutes ses statistiques ?`}
+            confirmText="Réintégrer" cancelText="Annuler"
+            onConfirm={()=>reintegrer(reactModal.id)} onCancel={()=>setReactModal(null)} />
 
           <Modal open={existModal} title="Équipes déjà générées"
             message="Des équipes ont déjà été générées aujourd'hui. Que voulez-vous faire ?"
@@ -875,7 +928,7 @@
       const season = useMemo(() => {
         const players = {};
         data.joueurs.filter(j => !isFantome(j)).forEach(j => {
-          players[j.id] = { id: j.id, nom: j.nom, parties: 0, nb15: 0, total: 0, presences: 0, absences: 0, history: [],
+          players[j.id] = { id: j.id, nom: j.nom, retire: isRetire(j), parties: 0, nb15: 0, total: 0, presences: 0, absences: 0, history: [],
                             ...Object.fromEntries(SUITS.map(s => [s.key, 0])) };
         });
 
@@ -939,7 +992,7 @@
           try {
             const imp = JSON.parse(ev.target.result);
             if (imp.joueurs && Array.isArray(imp.joueurs) && imp.parties && Array.isArray(imp.parties)) {
-              setData(migrateScores({ joueurs: imp.joueurs, parties: imp.parties, presences: imp.presences || {} }));
+              setData(migrateData({ joueurs: imp.joueurs, parties: imp.parties, presences: imp.presences || {} }));
               alert('Données importées avec succès !');
             } else { alert('Format de fichier invalide.'); }
           } catch (err) { alert('Erreur lors de l\'importation.'); }
@@ -953,7 +1006,7 @@
       const nameCell = (r, i) => (
         <td className="font-medium" title={r.nom}>
           {season.leaders.has(r.id) ? <span className="mr-1">👑</span> : (i < 3 && <span className="mr-1">{medals[i]}</span>)}
-          {r.nom}
+          {r.nom}{r.retire && <span className="text-xs text-gray-500 ml-1">(retiré)</span>}
         </td>
       );
       const leaderNames = season.brut.filter(r => season.leaders.has(r.id));
@@ -1051,7 +1104,7 @@
                       {season.brut.map((r,i)=>(
                         <tr key={r.id} className={`border-b border-gray-700/40 ${i%2===0?'bg-card':'bg-main/40'} ${leaderRow(r.id)}`}>
                           <td className="font-medium" title={r.nom}>
-                            {season.leaders.has(r.id) && <span className="mr-1">👑</span>}{r.nom}
+                            {season.leaders.has(r.id) && <span className="mr-1">👑</span>}{r.nom}{r.retire && <span className="text-xs text-gray-500 ml-1">(retiré)</span>}
                           </td>
                           {SUITS.map(s => {
                             const best = season.bestSuit[s.key] > 0 && r[s.key] === season.bestSuit[s.key];
@@ -1068,7 +1121,7 @@
                   <div className="p-4 flex flex-col gap-4">
                     <select value={ficheId} onChange={e=>setFicheId(e.target.value)}
                       className="bg-main border border-gray-600 rounded-xl px-4 py-2.5 text-sm focus:border-neon focus:outline-none">
-                      {[...season.list].sort((a,b)=>a.nom.localeCompare(b.nom,'fr')).map(r => <option key={r.id} value={r.id}>{r.nom}</option>)}
+                      {[...season.list].sort((a,b)=>a.nom.localeCompare(b.nom,'fr')).map(r => <option key={r.id} value={r.id}>{r.nom}{r.retire ? ' (retiré)' : ''}</option>)}
                     </select>
                     {fiche && (
                       <div className={`grid grid-cols-3 sm:grid-cols-6 gap-2 text-center ${season.leaders.has(fiche.id) ? 'ring-2 ring-yellow-400 rounded-xl p-2' : ''}`}>
