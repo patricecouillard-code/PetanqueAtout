@@ -73,6 +73,20 @@ Joueur 1 de l'équipe 1, joueur 1 de l'équipe 2, joueur 2 de l'équipe 1, joueu
 | ♥ Cœur | −10 | 55 (♥ + ♥ + 15) |
 | ✦ Tout atout | −20 | 70 (15 + ♥ + ♥) |
 
+### Totaux impossibles
+
+Avec 3 boules et un trou par boule, certains totaux ne peuvent pas arriver. Tout total hors de cette liste est possible (entre le minimum et le maximum).
+
+| Manche | Min | Max | Totaux impossibles |
+|---|---|---|---|
+| ♠ Pique | −10 | 35 | −9, −8, −7, −6, −3, −1, 2, 4, 17, 19, 30, 32, 34 |
+| ♣ Trèfle | −10 | 39 | −9, −8, −7, −4, −3, 1, 6, 21, 36, 38 |
+| ♦ Carreau | −10 | 47 | −9, −8, −7, −3, −2, 2, 13, 33, 34, 39, 40, 43, 44, 45, 46 |
+| ♥ Cœur | −10 | 55 | −9, −8, −7, −3, 2, 13, 17, 33, 37, 38, 42, 45, 47, 49, 50, 51, 52, 53, 54 |
+| ✦ Tout atout | −20 | 70 | tous les nombres impairs, et −18, −16, −14, 34, 60, 64, 68 |
+
+Au **Tout atout**, toutes les valeurs sont doublées : **un total impair est toujours impossible**.
+
 ## À confirmer
 
 Ces points viennent de l'application actuelle (`index.html`) et n'ont pas encore été confirmés :

@@ -67,6 +67,14 @@ La numérotation est celle de l'analyse du fichier (17 points).
 
 ---
 
+## #10 — Validation des totaux 📝
+
+- L'application calcule, pour chaque manche, **tous les totaux possibles** selon les règles (3 boules, un trou par boule, atout en double, Tout atout tout en double). La liste des totaux impossibles est dans `ReglesPetanqueAtout.md`.
+- Chaque pointage saisi est vérifié. S'il est impossible : simple message **« Total erroné »**, le curseur reste sur la case pour corriger.
+- Pas d'autre question ; la saisie n'est pas bloquée.
+
+---
+
 ## #9 — Parties incomplètes : aucun changement ✔️
 
 Les parties incomplètes sont rares, et c'est habituellement la 2e partie qui n'est pas jouée du tout : tous les joueurs sont alors traités également.
@@ -82,7 +90,6 @@ L'application fait déjà ce qu'il faut : une partie dont aucune manche n'a ét�
 
 ## À décider
 
-- ❓ **#10 — Aucune vérification des limites** : rien n'empêche un 60 en Cœur (maximum 55), ni un total impossible.
 - ❓ **#12 — Le dossier `lib/` manque** dans le dépôt : la page reste blanche sans lui.
 - ❓ **#13 — Démarrage lent sur téléphone** : Babel compile le code à chaque ouverture.
 - ❓ **#14 — Cases petites sur téléphone** : le texte descend à 11 pixels sur écran étroit.
