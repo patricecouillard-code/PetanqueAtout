@@ -75,6 +75,12 @@ La numérotation est celle de l'analyse du fichier (17 points).
 
 ---
 
+## #12 — Dossier `lib/` 📝
+
+- Claude fournit les bibliothèques au moment des corrections et les dépose dans le dépôt, pour que l'application fonctionne sans Internet.
+
+---
+
 ## #9 — Parties incomplètes : aucun changement ✔️
 
 Les parties incomplètes sont rares, et c'est habituellement la 2e partie qui n'est pas jouée du tout : tous les joueurs sont alors traités également.
@@ -90,7 +96,6 @@ L'application fait déjà ce qu'il faut : une partie dont aucune manche n'a ét�
 
 ## À décider
 
-- ❓ **#12 — Le dossier `lib/` manque** dans le dépôt : la page reste blanche sans lui.
 - ❓ **#13 — Démarrage lent sur téléphone** : Babel compile le code à chaque ouverture.
 - ❓ **#14 — Cases petites sur téléphone** : le texte descend à 11 pixels sur écran étroit.
 - ❓ **#15 — Le bouton « Quitter »** ne fonctionne pas dans la plupart des navigateurs.
