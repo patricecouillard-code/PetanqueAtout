@@ -99,6 +99,30 @@ La numérotation est celle de l'analyse du fichier (17 points).
 
 ---
 
+## #15 — « Sauvegarder et quitter » : données sur GitHub 📝
+
+- Le bouton « Quitter » devient **« Sauvegarder et quitter »** : il envoie toutes les données (joueurs, présences, parties, saisons) dans un fichier sur GitHub, puis affiche **« ✔ Sauvegardé sur GitHub »**.
+- Les données vont dans un **dépôt privé séparé** (proposé : `PetanqueAtout-donnees`) : l'application reste dans le dépôt public, les noms et pointages restent privés.
+- **Sans Internet** : l'envoi est mis en attente et se fait tout seul dès que l'appareil retrouve une connexion. Aucune question.
+- Accès par un **jeton GitHub** limité à ce seul dépôt de données, saisi une fois par appareil (révocable en un clic si un appareil est perdu).
+- Plus tard : récupérer les données sur un autre appareil, et les partager avec les 2 autres personnes.
+- Limite : une application web ne peut pas toujours fermer sa propre fenêtre ; après « Sauvegardé », on la ferme normalement si elle reste ouverte.
+
+**Préparatifs à faire par Patrice (Claude guidera pas à pas)**
+
+1. Créer le dépôt **privé** `PetanqueAtout-donnees` sur GitHub.
+2. Créer un jeton GitHub limité à ce dépôt (droit « Contents : lecture et écriture »).
+
+---
+
+## Application installable, hors ligne (PWA) 📝
+
+- L'application devient installable sur tablette, téléphone et ordinateur, et fonctionne **entièrement sans Internet** une fois installée.
+- Publication sur **GitHub Pages** (gratuit), à partir du dépôt public. Internet n'est nécessaire qu'une fois, pour l'installer ; les mises à jour se font toutes seules quand l'appareil est connecté.
+- Les données restent enregistrées **sur l'appareil** (et sur GitHub avec le bouton « Sauvegarder et quitter »).
+
+---
+
 ## #16 — Saisons 📝
 
 - Une saison va habituellement d'**octobre à mai-juin** de l'année suivante.
@@ -153,5 +177,4 @@ Comparaison avec l'application actuelle et les décisions ci-dessus.
 ## En suspens
 
 - ⏸️ **#5 — « Importer des données » remplace tout sans confirmation** : un mauvais fichier efface toutes les données. *On y reviendra plus tard.*
-- ⏸️ **#15 — Le bouton « Quitter »** ne fonctionne pas dans la plupart des navigateurs. *À revoir après avoir essayé l'application installée.*
 
