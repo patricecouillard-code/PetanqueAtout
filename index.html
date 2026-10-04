@@ -92,7 +92,7 @@
         const raw = localStorage.getItem(STORAGE_KEY);
         if (raw) {
           const d = JSON.parse(raw);
-          return { joueurs: d.joueurs || [], parties: d.parties || [], presences: d.presences || {} };
+          return migrateScores({ joueurs: d.joueurs || [], parties: d.parties || [], presences: d.presences || {} });
         }
       } catch (e) { console.error(e); }
       return { joueurs: [], parties: [], presences: {} };
@@ -156,6 +156,73 @@
     }
 
     const cellKey = (pk, id, suit) => `${pk}|${id}|${suit}`;
+
+    /* Lecture d'un pointage saisi : les nombres négatifs sont permis (trous à −5) */
+    function parseScore(v) {
+      if (v === '' || v == null) return null;
+      const n = parseInt(v, 10);
+      return Number.isNaN(n) ? null : n;
+    }
+
+    /* ── Planche : 2 trous par couleur, 1 trou à 15, 2 trous à −5 ──
+       Tous les trous comptent dans toutes les manches ; les trous de la couleur de la manche
+       valent le double, et tout vaut le double au Tout atout. Un trou ne reçoit qu'une boule par tour. */
+    const HOLES = [
+      { k:'pique', v:4 },   { k:'pique', v:4 },
+      { k:'trefle', v:6 },  { k:'trefle', v:6 },
+      { k:'carreau', v:8 }, { k:'carreau', v:8 },
+      { k:'coeur', v:10 },  { k:'coeur', v:10 },
+      { k:'quinze', v:15 },
+      { k:'moins5', v:-5 }, { k:'moins5', v:-5 },
+    ];
+    const BOULES = 3;
+
+    /* Pour chaque manche : totaux possibles avec le 15 et sans le 15 (3 boules, trous distincts) */
+    const QUINZE = Object.fromEntries(SUITS.map(su => {
+      const val = (h) => h.v * (su.key === 'toutAtout' || h.k === su.key ? 2 : 1);
+      const avec = new Set(), sans = new Set();
+      const explore = (debut, restantes, total, a15) => {
+        (a15 ? avec : sans).add(total);
+        if (restantes === 0) return;
+        for (let i = debut; i < HOLES.length; i++) {
+          explore(i + 1, restantes - 1, total + val(HOLES[i]), a15 || HOLES[i].k === 'quinze');
+        }
+      };
+      explore(0, BOULES, 0, false);
+      return [su.key, { avec, sans }];
+    }));
+
+    /* 'oui' : le total exige un 15 ; 'non' : il l'exclut ; 'peut-etre' : il faut demander */
+    function quinzeKind(suit, val) {
+      const q = QUINZE[suit];
+      if (val == null || !q) return 'non';
+      const a = q.avec.has(val), b = q.sans.has(val);
+      if (a && b) return 'peut-etre';
+      return a ? 'oui' : 'non';
+    }
+
+    /* Le 15 d'une manche est mémorisé par case (highlight15Fields) ; Nb 15 en est déduit.
+       nb15Extra conserve les 15 ajoutés à la main dans les anciennes données. */
+    function syncNb15(s) {
+      s.nb15 = (s.highlight15Fields || []).length + (s.nb15Extra || 0);
+    }
+
+    function migrateScores(data) {
+      (data.parties || []).forEach(p => PKS.forEach(pk => {
+        Object.values(p.scores?.[pk] || {}).forEach(s => {
+          if (!s) return;
+          const hl = s.highlight15Fields || (s.highlight15Field ? [s.highlight15Field] : []);
+          s.highlight15Fields = [...new Set(hl)];
+          delete s.highlight15Field;
+          if (s.nb15Extra == null) {
+            const extra = (s.nb15 || 0) - s.highlight15Fields.length;
+            if (extra > 0) s.nb15Extra = extra;
+          }
+          syncNb15(s);
+        });
+      }));
+      return data;
+    }
 
     /* ═══════════════════════════════════════════════
        COMPOSANTS PARTAGÉS
@@ -499,20 +566,16 @@
               </td>
               {SUITS.map(s => (
                 <td key={s.key} className={`in text-center ${isHl(id,s.key) ? 'bg-amber-500/20' : ''}`}>
-                  <input type="number" min="0" inputMode="numeric" className={isHl(id,s.key) ? inputHl : inputCls}
+                  <input type="number" className={isHl(id,s.key) ? inputHl : inputCls}
                     value={gs(id,s.key) == null ? '' : gs(id,s.key)}
-                    onChange={e=>{ const v=e.target.value===''?null:Math.max(0,parseInt(e.target.value)||0); onChange(pKey,id,s.key,v); }}
+                    onChange={e=>onChange(pKey,id,s.key,parseScore(e.target.value))}
                     {...cellProps(cellKey(pKey,id,s.key))} />
                 </td>
               ))}
               <td className="text-center bg-calc/60 font-bold text-neon">{tot}</td>
               <td className="text-center bg-calc/80 font-bold text-white">{cum}</td>
-              <td className="in text-center">
-                <input type="number" min="0" inputMode="numeric" tabIndex={-1} className={inputCls}
-                  value={gs(id,'nb15') == null ? '' : gs(id,'nb15')}
-                  onFocus={e=>e.target.select()}
-                  onChange={e=>{ const v=e.target.value===''?null:Math.max(0,parseInt(e.target.value)||0); onChange(pKey,id,'nb15',v); }} />
-              </td>
+              {/* Nb 15 : calculé à partir des manches où un 15 a été fait (cases orange) */}
+              <td className="text-center font-bold text-amber-400">{gs(id,'nb15') || ''}</td>
             </tr>
           );
         });
@@ -671,23 +734,46 @@
         if (el) el.focus();
       };
 
+      /* Marque (ou retire) le 15 d'une manche pour un joueur ; Nb 15 est recalculé */
+      const set15 = (pk, id, suit, on) => {
+        setData(prev => {
+          const nd = JSON.parse(JSON.stringify(prev));
+          const p = nd.parties.find(x => x.id === partie.id);
+          if (!p) return prev;
+          if (!p.scores[pk]) p.scores[pk] = {};
+          if (!p.scores[pk][id]) p.scores[pk][id] = EMPTY_SCORE();
+          const s = p.scores[pk][id];
+          const hl = new Set(s.highlight15Fields || []);
+          if (on) hl.add(suit); else hl.delete(suit);
+          s.highlight15Fields = [...hl];
+          syncNb15(s);
+          return nd;
+        });
+      };
+
       /* Validation d'une cellule de manche (Entrée, Tab, Maj+Tab ou perte du focus).
-         Le modal Nb 15 ne s'ouvre que si la valeur saisie DANS CETTE MANCHE vient de changer et vaut 15 ou plus ;
-         le cumul des manches n'est jamais pris en compte. */
+         Quand la valeur change, le 15 est déduit des règles du jeu :
+         - total impossible sans le 15 → 15 compté automatiquement ;
+         - total impossible avec le 15 → pas de 15 ;
+         - total possible dans les deux cas → on demande. */
       const commit = (key, el, dir) => {
-        const val = el.value === '' ? null : Math.max(0, parseInt(el.value) || 0);
+        const val = parseScore(el.value);
         const fi = focusInfo.current;
         const changed = !fi || fi.key !== key || fi.val !== val;
         if (fi && fi.key === key) fi.val = val;
         const idx = sequence.indexOf(key);
         const next = dir === 0 || idx < 0 ? null : (sequence[idx + dir] || null);
 
-        if (changed && val != null && val >= 15) {
+        if (changed) {
           const [pk, id, suit] = key.split('|');
-          const j = data.joueurs.find(x => x.id === id);
-          const su = SUITS.find(s => s.key === suit);
-          setModal15({ key, pk, id, suit, val, next, nom: j?.nom || '?', suitLabel: su?.label || suit, pLabel: PLABEL[pk] });
-          return;
+          const kind = quinzeKind(suit, val);
+          if (kind === 'peut-etre') {
+            const j = data.joueurs.find(x => x.id === id);
+            const su = SUITS.find(s => s.key === suit);
+            setModal15({ key, pk, id, suit, val, next, nom: j?.nom || '?', suitLabel: su?.label || suit, pLabel: PLABEL[pk] });
+            return;
+          }
+          set15(pk, id, suit, kind === 'oui');
         }
         if (next) focusCell(next);
       };
@@ -695,8 +781,7 @@
       const cellProps = (key) => ({
         ref: (el) => { if (el) cellRefs.current[key] = el; else delete cellRefs.current[key]; },
         onFocus: (e) => {
-          const v = e.target.value === '' ? null : Math.max(0, parseInt(e.target.value) || 0);
-          focusInfo.current = { key, val: v };
+          focusInfo.current = { key, val: parseScore(e.target.value) };
           e.target.select();
         },
         onKeyDown: (e) => {
@@ -711,24 +796,8 @@
       const handleConfirm15 = (confirmed) => {
         const m = modal15;
         if (!m) return;
-        if (confirmed) {
-          setData(prev => {
-            const nd = JSON.parse(JSON.stringify(prev));
-            const p = nd.parties.find(x => x.id === partie.id);
-            if (p) {
-              if (!p.scores[m.pk]) p.scores[m.pk] = {};
-              if (!p.scores[m.pk][m.id]) p.scores[m.pk][m.id] = EMPTY_SCORE();
-              const s = p.scores[m.pk][m.id];
-              s.nb15 = (s.nb15 || 0) + 1;
-              /* Mémorise les cellules ayant déclenché un 15 pour les colorer */
-              const hl = new Set(s.highlight15Fields || (s.highlight15Field ? [s.highlight15Field] : []));
-              hl.add(m.suit);
-              s.highlight15Fields = [...hl];
-              delete s.highlight15Field;
-            }
-            return nd;
-          });
-        }
+        /* Un seul trou à 15 : au plus un 15 par joueur et par manche, jamais compté deux fois */
+        set15(m.pk, m.id, m.suit, confirmed);
         setModal15(null);
         /* Reprise de la séquence normale après la fermeture du modal */
         setTimeout(() => {
@@ -772,9 +841,9 @@
             </div>
           </div>
 
-          {/* Modal Nb 15 : focus sur « Oui » à l'ouverture, Tab alterne Oui / Non, Entrée valide */}
+          {/* Modal Nb 15 (seulement si le total ne permet pas de trancher) : focus sur « Oui », Tab alterne Oui / Non, Entrée valide */}
           <Modal open={!!modal15} title="🏆 15 points ?"
-            message={`${modal15?.nom} a inscrit ${modal15?.val} points en ${modal15?.suitLabel} (${modal15?.pLabel}). Y a-t-il eu un 15 dans cette manche ?`}
+            message={`${modal15?.nom} a inscrit ${modal15?.val} points en ${modal15?.suitLabel} (${modal15?.pLabel}). Ce total est possible avec ou sans le 15 : y a-t-il eu une boule dans le 15 ?`}
             initialFocus={1}
             onEscape={() => handleConfirm15(false)}
             buttons={[
@@ -870,7 +939,7 @@
           try {
             const imp = JSON.parse(ev.target.result);
             if (imp.joueurs && Array.isArray(imp.joueurs) && imp.parties && Array.isArray(imp.parties)) {
-              setData({ joueurs: imp.joueurs, parties: imp.parties, presences: imp.presences || {} });
+              setData(migrateScores({ joueurs: imp.joueurs, parties: imp.parties, presences: imp.presences || {} }));
               alert('Données importées avec succès !');
             } else { alert('Format de fichier invalide.'); }
           } catch (err) { alert('Erreur lors de l\'importation.'); }
