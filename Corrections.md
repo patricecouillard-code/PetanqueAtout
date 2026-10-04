@@ -111,6 +111,12 @@ La numérotation est celle de l'analyse du fichier (17 points).
 
 ---
 
+## #17 — Victoires d'équipe : aucun changement ✔️
+
+Les victoires sont des victoires d'**équipe** (les équipes changent à chaque partie) ; les meilleurs joueurs se retrouvent déjà dans les statistiques individuelles. **On ne suit pas les victoires.**
+
+---
+
 ## #9 — Parties incomplètes : aucun changement ✔️
 
 Les parties incomplètes sont rares, et c'est habituellement la 2e partie qui n'est pas jouée du tout : tous les joueurs sont alors traités également.
@@ -123,8 +129,3 @@ L'application fait déjà ce qu'il faut : une partie dont aucune manche n'a ét�
 - ⏸️ **#5 — « Importer des données » remplace tout sans confirmation** : un mauvais fichier efface toutes les données. *On y reviendra plus tard.*
 - ⏸️ **#15 — Le bouton « Quitter »** ne fonctionne pas dans la plupart des navigateurs. *À revoir après avoir essayé l'application installée.*
 
----
-
-## À décider
-
-- ❓ **#17 — Le vainqueur de chaque partie** n'est enregistré nulle part.
