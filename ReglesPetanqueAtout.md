@@ -32,6 +32,8 @@ La partie se termine quand tous les joueurs ont joué la manche Tout atout.
 
 ## Une manche
 
+> **Règle essentielle : tous les trous comptent, peu importe la manche.** La manche ne fait que doubler la valeur des trous de sa couleur (et tout doubler au Tout atout).
+
 - Chaque joueur lance **3 boules**.
 - **Tous les trous comptent**, dans toutes les manches.
 - **L'atout** : les trous de la couleur de la manche valent **le double**. Dans la manche Pique, par exemple, un trou ♠ vaut 8 points au lieu de 4. Les autres trous gardent leur valeur normale.
