@@ -13,7 +13,7 @@ La numérotation est celle de l'analyse du fichier (17 points).
 
 - ✅ **#1 — Pointages négatifs** : les cases acceptent −5, −10, etc.
 - ✅ **#2, #3, #4 — Comptage des 15** : déduit du total selon les règles ; question seulement si le total est possible avec ou sans le 15 ; au plus un 15 par joueur et par manche ; Nb 15 recalculé quand on corrige ou efface.
-- ✅ **#7 — Supprimer un joueur** : le joueur est *retiré* (quitte la liste et les tirages) mais garde toutes ses données ; il peut être réintégré.
+- ✅ **#7 — Supprimer un joueur** : le joueur est effacé **seulement de la liste des joueurs** (et donc des tirages). Son nom et toutes ses données sont **conservés partout ailleurs** (statistiques, anciennes parties). Il peut être réintégré.
 
 ---
 
@@ -40,13 +40,30 @@ La numérotation est celle de l'analyse du fichier (17 points).
 
 ---
 
+## Le Fantôme 📝
+
+**Rôle** : le Fantôme sert à équilibrer les équipes quand le nombre de joueurs est impair. Les autres joueurs jouent un tour chacun à sa place.
+
+**Décision**
+
+- Le Fantôme est **toujours là** : il ne peut pas être supprimé ni retiré de la liste des joueurs. *(règle aussi le #11)*
+- Il entre dans une équipe seulement quand le nombre de joueurs présents est impair.
+- Il a **ses propres statistiques de Fantôme**, affichées comme celles des autres joueurs (aujourd'hui, il est exclu des statistiques : à changer).
+- Le nom « Fantôme » est **réservé** : aucun joueur ne peut être ajouté ou renommé « Fantôme ». *(règle une partie du #8)*
+
+---
+
+## En suspens
+
+- ⏸️ **#5 — « Importer des données » remplace tout sans confirmation** : un mauvais fichier efface toutes les données. *On y reviendra plus tard.*
+
+---
+
 ## À décider
 
-- ❓ **#5 — « Importer des données » remplace tout sans confirmation** : un mauvais fichier efface toutes les données.
-- ❓ **#8 — Un joueur peut devenir Fantôme par accident** : en s'appelant « Fantôme » ; le renommage ne vérifie pas non plus les doublons.
+- ❓ **#8 — Renommer un joueur ne vérifie pas les doublons** (deux joueurs peuvent avoir le même nom). *Le cas « Fantôme » est réglé plus haut.*
 - ❓ **#9 — Moyennes faussées par les parties incomplètes** : une partie compte comme « jouée » dès qu'une seule manche est saisie.
 - ❓ **#10 — Aucune vérification des limites** : rien n'empêche un 60 en Cœur (maximum 55), ni un total impossible.
-- ❓ **#11 — Le Fantôme peut être supprimé** pendant qu'il fait partie d'une équipe.
 - ❓ **#12 — Le dossier `lib/` manque** dans le dépôt : la page reste blanche sans lui.
 - ❓ **#13 — Démarrage lent sur téléphone** : Babel compile le code à chaque ouverture.
 - ❓ **#14 — Cases petites sur téléphone** : le texte descend à 11 pixels sur écran étroit.

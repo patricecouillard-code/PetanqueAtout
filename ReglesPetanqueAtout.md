@@ -17,6 +17,7 @@ La Pétanque Atout combine trois jeux : les **boules de pétanque** (on lance de
 
 - Les joueurs présents sont répartis en **2 équipes**.
 - Si le nombre de joueurs est impair, un joueur **Fantôme** complète une équipe. Ses points comptent dans le total de son équipe.
+- Le Fantôme sert à équilibrer les équipes : les autres joueurs **jouent un tour chacun à sa place**. Il a ses propres statistiques.
 
 ## Une partie
 
