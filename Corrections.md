@@ -109,11 +109,11 @@ L'application fait déjà ce qu'il faut : une partie dont aucune manche n'a ét�
 ## En suspens
 
 - ⏸️ **#5 — « Importer des données » remplace tout sans confirmation** : un mauvais fichier efface toutes les données. *On y reviendra plus tard.*
+- ⏸️ **#15 — Le bouton « Quitter »** ne fonctionne pas dans la plupart des navigateurs. *À revoir après avoir essayé l'application installée.*
 
 ---
 
 ## À décider
 
-- ❓ **#15 — Le bouton « Quitter »** ne fonctionne pas dans la plupart des navigateurs.
 - ❓ **#16 — Pas de notion de saison** : les statistiques s'accumulent depuis le début.
 - ❓ **#17 — Le vainqueur de chaque partie** n'est enregistré nulle part.
