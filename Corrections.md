@@ -67,6 +67,13 @@ La numérotation est celle de l'analyse du fichier (17 points).
 
 ---
 
+## #9 — Parties incomplètes : aucun changement ✔️
+
+Les parties incomplètes sont rares, et c'est habituellement la 2e partie qui n'est pas jouée du tout : tous les joueurs sont alors traités également.
+L'application fait déjà ce qu'il faut : une partie dont aucune manche n'a été saisie ne compte pas dans les moyennes. **On garde le fonctionnement actuel.**
+
+---
+
 ## En suspens
 
 - ⏸️ **#5 — « Importer des données » remplace tout sans confirmation** : un mauvais fichier efface toutes les données. *On y reviendra plus tard.*
@@ -75,7 +82,6 @@ La numérotation est celle de l'analyse du fichier (17 points).
 
 ## À décider
 
-- ❓ **#9 — Moyennes faussées par les parties incomplètes** : une partie compte comme « jouée » dès qu'une seule manche est saisie.
 - ❓ **#10 — Aucune vérification des limites** : rien n'empêche un 60 en Cœur (maximum 55), ni un total impossible.
 - ❓ **#12 — Le dossier `lib/` manque** dans le dépôt : la page reste blanche sans lui.
 - ❓ **#13 — Démarrage lent sur téléphone** : Babel compile le code à chaque ouverture.
