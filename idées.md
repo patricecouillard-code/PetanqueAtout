@@ -18,10 +18,10 @@ Un classement qui additionne toutes les saisons. Pas prioritaire : idée conserv
 ### Nombres négatifs ✅ fait
 Il faut **absolument** pouvoir saisir un pointage négatif.
 
-### Vérification des pointages
+### Vérification des pointages ✅ fait
 Refuser ou signaler un pointage impossible pour la manche (voir les minimums et maximums dans `ReglesPetanqueAtout.md`). Par exemple, 60 dans la manche Cœur est une faute de frappe.
 
-### Application installable (PWA)
+### Application installable (PWA) ✅ fait
 - Installable sur téléphone et ordinateur.
 - Fonctionne sans connexion Internet.
 - Le bouton « Quitter » fonctionnera mieux une fois l'application installée.

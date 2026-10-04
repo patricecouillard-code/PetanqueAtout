@@ -1,0 +1,58 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* { font-family: "Segoe UI", system-ui, Roboto, Helvetica, Arial, sans-serif; }
+body { background: #1a1a2e; }
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+.anim-fade { animation: fadeIn 0.3s ease-out; }
+@keyframes glowPulse {
+  0%, 100% { box-shadow: 0 0 8px rgba(0,200,224,0.25); }
+  50% { box-shadow: 0 0 24px rgba(0,200,224,0.5); }
+}
+.glow { animation: glowPulse 2.5s infinite; }
+@keyframes cardFloat {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-8px) rotate(2deg); }
+}
+.card-float { animation: cardFloat 3s ease-in-out infinite; }
+
+/* ── Tableaux adaptatifs : largeur fixe, jamais de défilement horizontal ──
+   Tablette : cases d'au moins 44 px de haut et chiffres d'au moins 16 px (#14). */
+.sheet { container-type: inline-size; }
+.sheet-t { width: 100%; table-layout: fixed; border-collapse: collapse;
+           --fs: 16px; --py: 8px; --px: 6px; font-size: var(--fs); }
+.sheet-t th, .sheet-t td { white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+                           padding: var(--py) var(--px); }
+.sheet-t th { font-size: calc(var(--fs) - 1px); font-weight: 700; }
+.sheet-t td.in { padding: 3px 2px; }
+/* 16 px minimum dans les cases : lisible, et évite le zoom automatique de l'iPad */
+.cell-in { width: 100%; min-width: 0; min-height: 44px; padding: 6px 2px; font-size: 16px;
+           text-align: center; border-radius: 6px; }
+.lbl-mid, .lbl-short { display: none; }
+@container (max-width: 860px) {
+  .lbl-long { display: none; }
+  .lbl-mid { display: inline; }
+}
+@container (max-width: 620px) { .sheet-t { --fs: 15px; --py: 6px; --px: 3px; } }
+@container (max-width: 540px) {
+  .sheet-t { --fs: 14px; --py: 5px; --px: 2px; }
+  .lbl-mid { display: none; }
+  .lbl-short { display: inline; }
+}
+
+/* ── Téléphone tenu à la verticale : on demande de le tourner (#14) ── */
+.rotate-overlay { display: none; }
+@media (orientation: portrait) and (max-width: 599px) {
+  .rotate-overlay {
+    display: flex; position: fixed; inset: 0; z-index: 100; flex-direction: column;
+    align-items: center; justify-content: center; gap: 1rem; padding: 2rem; text-align: center;
+    background: #1a1a2e; color: #e5e7eb; font-size: 1.25rem;
+  }
+  .rotate-overlay .icone { font-size: 4rem; animation: tourne 2s ease-in-out infinite; }
+  #root { display: none; }
+}
+@keyframes tourne { 0%, 30% { transform: rotate(0deg); } 60%, 100% { transform: rotate(-90deg); } }

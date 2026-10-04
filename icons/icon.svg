@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <radialGradient id="acier" cx="36%" cy="30%" r="72%">
+      <stop offset="0" stop-color="#f4f7f8"/>
+      <stop offset="0.45" stop-color="#a7b2b8"/>
+      <stop offset="1" stop-color="#46525a"/>
+    </radialGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="#1a1a2e"/>
+  <rect x="72" y="70" width="368" height="250" rx="34" fill="#0f3460" stroke="#00c8e0" stroke-width="8"/>
+  <g font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="58" font-weight="700" text-anchor="middle">
+    <circle cx="146" cy="150" r="40" fill="#16213e"/><text x="146" y="170" fill="#d1d5db">♠</text>
+    <circle cx="256" cy="150" r="40" fill="#16213e"/><text x="256" y="170" fill="#f87171">♥</text>
+    <circle cx="366" cy="150" r="40" fill="#16213e"/><text x="366" y="170" fill="#4ade80">♣</text>
+    <circle cx="201" cy="250" r="40" fill="#16213e"/><text x="201" y="270" fill="#60a5fa">♦</text>
+    <circle cx="311" cy="250" r="40" fill="#16213e"/><text x="311" y="268" fill="#facc15" font-size="40">15</text>
+  </g>
+  <ellipse cx="300" cy="448" rx="96" ry="16" fill="#000" opacity="0.35"/>
+  <circle cx="300" cy="372" r="80" fill="url(#acier)"/>
+  <path d="M232 340 Q300 372 368 340 M226 366 Q300 404 374 366" fill="none" stroke="#3b444a" stroke-width="5" opacity="0.7"/>
+</svg>

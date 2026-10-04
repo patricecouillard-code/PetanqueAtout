@@ -5,6 +5,8 @@ les corrections seront ensuite faites **en un seul coup**, en se référant à c
 
 Légende : ✅ corrigé · 📝 décidé (à faire) · ❓ à décider
 
+> **5 octobre 2026 — toutes les corrections décidées sont faites** (version 2 de l'application). Seuls les points « En suspens » restent ouverts.
+
 La numérotation est celle de l'analyse du fichier (17 points).
 
 ---
@@ -17,7 +19,7 @@ La numérotation est celle de l'analyse du fichier (17 points).
 
 ---
 
-## #6 — Plusieurs parties par jour, rien n'est effacé 📝
+## #6 — Plusieurs parties par jour, rien n'est effacé ✅
 
 **Décision**
 
@@ -40,7 +42,7 @@ La numérotation est celle de l'analyse du fichier (17 points).
 
 ---
 
-## #7 — Retouches 📝
+## #7 — Retouches ✅
 
 - Enlever la mention **« (retiré) »** dans les statistiques : le nom s'affiche normalement.
 - Enlever la section **« Joueurs retirés »** de la page des joueurs.
@@ -48,13 +50,13 @@ La numérotation est celle de l'analyse du fichier (17 points).
 
 ---
 
-## #8 — Doublons de noms 📝
+## #8 — Doublons de noms ✅
 
 - Renommer un joueur avec le nom d'un autre joueur qui existe déjà est **refusé**, avec un message (même règle que pour l'ajout).
 
 ---
 
-## Le Fantôme 📝
+## Le Fantôme ✅
 
 **Rôle** : le Fantôme sert à équilibrer les équipes quand le nombre de joueurs est impair. Les autres joueurs jouent un tour chacun à sa place.
 
@@ -67,7 +69,7 @@ La numérotation est celle de l'analyse du fichier (17 points).
 
 ---
 
-## #10 — Validation des totaux 📝
+## #10 — Validation des totaux ✅
 
 - L'application calcule, pour chaque manche, **tous les totaux possibles** selon les règles (3 boules, un trou par boule, atout en double, Tout atout tout en double). La liste des totaux impossibles est dans `ReglesPetanqueAtout.md`.
 - Chaque pointage saisi est vérifié. S'il est impossible : simple message **« Total erroné »**, le curseur reste sur la case pour corriger.
@@ -75,13 +77,13 @@ La numérotation est celle de l'analyse du fichier (17 points).
 
 ---
 
-## #12 — Dossier `lib/` 📝
+## #12 — Dossier `lib/` ✅
 
 - Claude fournit les bibliothèques au moment des corrections et les dépose dans le dépôt, pour que l'application fonctionne sans Internet.
 
 ---
 
-## #13 — Démarrage rapide 📝
+## #13 — Démarrage rapide ✅
 
 - Le code et l'apparence (Babel et Tailwind) sont préparés **une seule fois**, au moment des corrections, au lieu d'être recalculés à chaque ouverture.
 - Même apparence et même fonctionnement ; `lib/` ne contient plus que React (≈ 140 Ko au lieu de plus de 3 Mo).
@@ -89,7 +91,7 @@ La numérotation est celle de l'analyse du fichier (17 points).
 
 ---
 
-## #14 — Tablette et téléphone 📝
+## #14 — Tablette et téléphone ✅
 
 - **Tablette** (appareil habituel) : tableau complet, adapté aux doigts — cases d'au moins 44 pixels de haut, chiffres d'au moins 16 pixels.
 - **Téléphone** : **mode paysage obligatoire**.
@@ -99,7 +101,7 @@ La numérotation est celle de l'analyse du fichier (17 points).
 
 ---
 
-## #15 — « Sauvegarder et quitter » : données sur GitHub 📝
+## #15 — « Sauvegarder et quitter » : données sur GitHub ✅
 
 - Le bouton « Quitter » devient **« Sauvegarder et quitter »** : il envoie toutes les données (joueurs, présences, parties, saisons) dans un fichier sur GitHub, puis affiche **« ✔ Sauvegardé sur GitHub »**.
 - Les données vont dans un **dépôt privé séparé** (`PetanqueAtout-Data`, créé le 4 octobre 2026) : l'application reste dans le dépôt public, les noms et pointages restent privés.
@@ -111,11 +113,11 @@ La numérotation est celle de l'analyse du fichier (17 points).
 **Préparatifs à faire par Patrice (Claude guidera pas à pas)**
 
 1. ✅ Créer le dépôt **privé** `PetanqueAtout-Data` sur GitHub.
-2. Créer un jeton GitHub limité à ce dépôt (droit « Contents : lecture et écriture »).
+2. ⬜ Créer un jeton GitHub limité à ce dépôt (droit « Contents : Read and write ») et le saisir dans l'application (⚙️ Sauvegarde GitHub).
 
 ---
 
-## Application installable, hors ligne (PWA) 📝
+## Application installable, hors ligne (PWA) ✅
 
 - L'application devient installable sur tablette, téléphone et ordinateur, et fonctionne **entièrement sans Internet** une fois installée.
 - Publication sur **GitHub Pages** (gratuit), à partir du dépôt public. Internet n'est nécessaire qu'une fois, pour l'installer ; les mises à jour se font toutes seules quand l'appareil est connecté.
@@ -123,7 +125,7 @@ La numérotation est celle de l'analyse du fichier (17 points).
 
 ---
 
-## #16 — Saisons 📝
+## #16 — Saisons ✅
 
 - Une saison va habituellement d'**octobre à mai-juin** de l'année suivante.
 - Bouton **« Nouvelle saison »** (page des statistiques) : la nouvelle saison commence à la date du jour. Pas de date fixe imposée.
