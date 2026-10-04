@@ -29,14 +29,7 @@ Deux autres personnes pourraient utiliser l'application plus tard. À prévoir :
 
 ## Problèmes trouvés dans l'application actuelle (`index.html`)
 
-1. **Le dossier `lib/` manque dans le dépôt** (tailwind, react, react-dom, babel) : sans lui, la page reste blanche.
-2. ✅ **Corrigé** — **Les pointages négatifs sont impossibles** : ils sont ramenés à 0.
-3. ✅ **Corrigé** — **Le compteur « Nb 15 » peut se tromper** : si on modifie une case déjà validée à 15 ou plus, la question revient et le compteur peut augmenter deux fois. Si on efface la case, le compteur et le surlignage ne reculent pas.
-4. ✅ **Corrigé** — **La question du 15 se trompe** : elle apparaît dès qu'une manche donne 15 points ou plus, même sans boule dans le trou à 15 (par exemple deux ♥ dans la manche Cœur = 40). La saisie en touchant les trous règle ce problème.
-5. ✅ **Corrigé** — **Supprimer un joueur efface son historique** dans les statistiques des anciennes séances (il y apparaît comme « ? »). Le joueur est maintenant *retiré* : il quitte la liste et les tirages, mais garde toutes ses données, et peut être réintégré.
-6. **Le bouton « Quitter » ne fonctionne pas** dans la plupart des navigateurs.
-7. **Il n'y a pas de notion de saison** : les statistiques regroupent toutes les données depuis le début, sans moyen de commencer une nouvelle saison.
-8. **Démarrage lent sur téléphone** : Babel compile le code dans le navigateur à chaque ouverture.
+Voir **`Corrections.md`** : liste complète, décisions et état de chaque correction.
 
 ## Comptage des 15 (en place)
 
