@@ -1017,7 +1017,11 @@ function Scoreboard({ data, setData, partie, setPage, onSaveQuit, onRestart, onD
     if (next) focusCell(next);
   };
 
+  /* L'ordre des cases (tabIndex) suit la convention de jeu : la touche « Suivant » du clavier
+     d'Android et la touche Tab avancent ainsi dans le bon ordre, pas de gauche à droite. */
   const cellProps = (key) => ({
+    tabIndex: sequence.indexOf(key) + 1,
+    enterKeyHint: 'next',
     ref: (el) => { if (el) cellRefs.current[key] = el; else delete cellRefs.current[key]; },
     onFocus: (e) => {
       focusInfo.current = { key, val: parseScore(e.target.value) };
