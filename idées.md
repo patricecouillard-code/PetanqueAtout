@@ -30,8 +30,8 @@ Refuser ou signaler un pointage impossible pour la manche (voir les minimums et 
 - Sur ordinateur (Chrome, Edge) : les données sont enregistrées directement et automatiquement dans un fichier choisi, au lieu d'exporter et d'importer du JSON à la main.
 - Sur téléphone, cette API n'existe pas : on garde l'export et l'import d'un fichier.
 
-### Plusieurs utilisateurs (plus tard)
-Deux autres personnes pourraient utiliser l'application plus tard. À prévoir : un moyen de partager les données (par fichier au début, peut-être par un serveur de synchronisation ensuite).
+### Plusieurs utilisateurs ✅ fait
+Chaque appareil enregistre dans le même fichier du dépôt privé `PetanqueAtout-Data` ; les données sont fusionnées à chaque sauvegarde et récupérées à l'ouverture (voir README).
 
 ## Problèmes trouvés dans l'application actuelle (`index.html`)
 

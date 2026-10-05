@@ -236,8 +236,78 @@ function ensureSaisons(data) {
 }
 
 function migrateData(d) {
-  const data = { joueurs: d.joueurs || [], parties: d.parties || [], presences: d.presences || {}, saisons: d.saisons || [] };
+  const data = { joueurs: d.joueurs || [], parties: d.parties || [], presences: d.presences || {}, saisons: d.saisons || [], supprimees: d.supprimees || [] };
   return ensureSaisons(ensureFantome(recoverPlayers(migrateScores(data))));
+}
+
+/* ═══════════════════════════════════════════════
+   FUSION DES DONNÉES DE PLUSIEURS APPAREILS
+   Chaque appareil (Patrice, un ami…) enregistre dans le même fichier du dépôt privé.
+   Avant d'envoyer, on fusionne avec ce qui s'y trouve déjà : rien n'est écrasé.
+   ═══════════════════════════════════════════════ */
+
+/* Remplace des identifiants de joueurs (doublons d'un appareil à l'autre) partout */
+function remapIds(d, map) {
+  if (!Object.keys(map).length) return d;
+  const m = (id) => map[id] || id;
+  const remapObj = (o) => { const n = {}; Object.entries(o || {}).forEach(([k, v]) => { n[m(k)] = v; }); return n; };
+  d.parties.forEach(p => {
+    p.equipe1 = (p.equipe1 || []).map(m);
+    p.equipe2 = (p.equipe2 || []).map(m);
+    PKS.forEach(pk => { if (p.scores?.[pk]) p.scores[pk] = remapObj(p.scores[pk]); });
+  });
+  Object.keys(d.presences || {}).forEach(date => { d.presences[date] = remapObj(d.presences[date]); });
+  return d;
+}
+
+const partieModif = (p) => Date.parse(p.modifie || p.createdAt || `${p.date}T12:00:00`) || 0;
+
+function mergeData(localIn, remoteIn) {
+  const L = migrateData(JSON.parse(JSON.stringify(localIn)));
+  const R = migrateData(JSON.parse(JSON.stringify(remoteIn)));
+
+  /* Joueurs : réunis par identifiant (la version de cet appareil l'emporte), puis les doublons
+     (même nom, ou le Fantôme de chaque appareil) sont fusionnés sous un seul identifiant. */
+  const byId = new Map();
+  R.joueurs.forEach(j => byId.set(j.id, { ...j }));
+  L.joueurs.forEach(j => byId.set(j.id, { ...(byId.get(j.id) || {}), ...j, retire: !!j.retire }));
+  const groups = {};
+  [...byId.values()].forEach(j => { const k = isFantome(j) ? '\u0000fantome' : norm(j.nom); (groups[k] = groups[k] || []).push(j); });
+  const map = {};
+  const joueurs = [];
+  Object.values(groups).forEach(g => {
+    g.sort((a, b) => (a.id < b.id ? -1 : 1));
+    const keep = { ...g[0] };
+    if (!keep.retire || g.some(j => !isRetire(j))) delete keep.retire;
+    g.slice(1).forEach(j => { map[j.id] = keep.id; });
+    joueurs.push(keep);
+  });
+  remapIds(L, map); remapIds(R, map);
+
+  /* Parties : réunion ; si une partie existe des deux côtés, la plus récemment modifiée l'emporte.
+     Une partie supprimée sur un appareil est supprimée partout. */
+  const supprimees = [...new Set([...(L.supprimees || []), ...(R.supprimees || [])])];
+  const parties = new Map();
+  R.parties.forEach(p => parties.set(p.id, p));
+  L.parties.forEach(p => { const r = parties.get(p.id); if (!r || partieModif(p) >= partieModif(r)) parties.set(p.id, p); });
+
+  /* Présences : réunies par date */
+  const presences = { ...R.presences };
+  Object.entries(L.presences || {}).forEach(([date, rec]) => { presences[date] = { ...(presences[date] || {}), ...rec }; });
+
+  /* Saisons : réunies ; même nom → une seule saison (la plus ancienne date de début) */
+  const saisons = [];
+  [...R.saisons, ...L.saisons].forEach(s => {
+    const same = saisons.find(x => x.id === s.id || x.nom === s.nom);
+    if (!same) saisons.push({ ...s });
+    else if (Date.parse(s.debut) < Date.parse(same.debut)) same.debut = s.debut;
+  });
+
+  return migrateData({
+    joueurs,
+    parties: [...parties.values()].filter(p => !supprimees.includes(p.id)),
+    presences, saisons, supprimees,
+  });
 }
 
 function load() {
@@ -297,23 +367,56 @@ async function ghFetch(cfg, url, opts = {}) {
 
 const ghAuthError = () => new GhError('auth', "GitHub refuse le jeton : il est peut-être expiré, ou n'a pas accès au dépôt de données.");
 
-/* Envoie toutes les données dans le fichier du dépôt (création ou mise à jour) */
-async function ghPush(data) {
+function fromBase64(b64) {
+  const bin = atob((b64 || '').replace(/\s/g, ''));
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return new TextDecoder().decode(bytes);
+}
+
+function ghUrl(cfg) {
+  return `https://api.github.com/repos/${cfg.repo.trim()}/contents/${cfg.path.trim().split('/').map(encodeURIComponent).join('/')}`;
+}
+
+function ghReady() {
   const cfg = ghConfig();
   if (!cfg.token.trim()) throw new GhError('config', "La sauvegarde GitHub n'est pas configurée.");
   if (navigator.onLine === false) throw new GhError('offline', "Pas de connexion Internet.");
-  const url = `https://api.github.com/repos/${cfg.repo.trim()}/contents/${cfg.path.trim().split('/').map(encodeURIComponent).join('/')}`;
-  const content = toBase64(JSON.stringify(data, null, 2));
+  return cfg;
+}
+
+/* Lit le fichier du dépôt : { sha, data } ou null s'il n'existe pas encore */
+async function ghRead(cfg) {
+  const r = await ghFetch(cfg, ghUrl(cfg));
+  if (r.status === 404) return null;
+  if (r.status === 401 || r.status === 403) throw ghAuthError();
+  if (!r.ok) throw new GhError('autre', `GitHub a répondu ${r.status}.`);
+  const info = await r.json();
+  let data = null;
+  try { data = JSON.parse(fromBase64(info.content)); } catch (e) { data = null; }
+  return { sha: info.sha, data };
+}
+
+/* Récupère les données des autres appareils, sans rien envoyer */
+async function ghPull() {
+  const cfg = ghReady();
+  const f = await ghRead(cfg);
+  return f && f.data && Array.isArray(f.data.joueurs) ? f.data : null;
+}
+
+/* Fusionne avec le fichier du dépôt puis l'envoie ; retourne les données fusionnées */
+async function ghPush(data) {
+  const cfg = ghReady();
+  const url = ghUrl(cfg);
   const message = `Sauvegarde du ${fmtDateHeure(new Date().toISOString())}`;
-  for (let essai = 0; essai < 2; essai++) {
-    let r = await ghFetch(cfg, url);
-    let sha;
-    if (r.status === 200) sha = (await r.json()).sha;
-    else if (r.status === 401 || r.status === 403) throw ghAuthError();
-    else if (r.status !== 404) throw new GhError('autre', `GitHub a répondu ${r.status}.`);
-    r = await ghFetch(cfg, url, { method: 'PUT', body: JSON.stringify({ message, content, ...(sha ? { sha } : {}) }) });
-    if (r.ok) return;
-    if ((r.status === 409 || r.status === 422) && essai === 0) continue;
+  for (let essai = 0; essai < 3; essai++) {
+    const f = await ghRead(cfg);
+    const merged = f && f.data && Array.isArray(f.data.joueurs) ? mergeData(data, f.data) : data;
+    const content = toBase64(JSON.stringify(merged, null, 2));
+    const r = await ghFetch(cfg, url, { method: 'PUT', body: JSON.stringify({ message, content, ...(f ? { sha: f.sha } : {}) }) });
+    if (r.ok) return merged;
+    /* Un autre appareil vient d'enregistrer : on relit et on refusionne */
+    if ((r.status === 409 || r.status === 422) && essai < 2) continue;
     if (r.status === 401 || r.status === 403) throw ghAuthError();
     if (r.status === 404) throw new GhError('auth', "Dépôt introuvable : vérifiez le nom du dépôt et les droits du jeton.");
     throw new GhError('autre', `GitHub a répondu ${r.status}.`);
@@ -854,6 +957,7 @@ function Scoreboard({ data, setData, partie, setPage, onSaveQuit, onRestart, onD
       if (!p.scores[pKey]) p.scores[pKey] = {};
       if (!p.scores[pKey][joueurId]) p.scores[pKey][joueurId] = EMPTY_SCORE();
       p.scores[pKey][joueurId][field] = val;
+      p.modifie = new Date().toISOString();
       return nd;
     });
   };
@@ -876,6 +980,7 @@ function Scoreboard({ data, setData, partie, setPage, onSaveQuit, onRestart, onD
       if (on) hl.add(suit); else hl.delete(suit);
       s.highlight15Fields = [...hl];
       syncNb15(s);
+      p.modifie = new Date().toISOString();
       return nd;
     });
   };
@@ -1404,7 +1509,7 @@ function Reglages({ setPage, onSaveNow, notify, ghStatus }) {
       <div className="max-w-lg mx-auto">
         <h2 className="text-2xl font-bold text-neon mb-2 text-center">⚙️ Sauvegarde GitHub</h2>
         <p className="text-gray-400 text-center text-sm mb-6">
-          « Sauvegarder et quitter » envoie toutes les données dans un fichier de votre dépôt privé.
+          « Sauvegarder et quitter » envoie toutes les données dans le fichier partagé de votre dépôt privé. Les parties saisies sur les autres appareils (un ami, la tablette…) sont ajoutées automatiquement, sans rien écraser.
           {ghStatus && <><br />{ghStatus}</>}
         </p>
         <div className="bg-card rounded-2xl border border-accent/50 p-4 flex flex-col gap-4 mb-6">
@@ -1429,7 +1534,7 @@ function Reglages({ setPage, onSaveNow, notify, ghStatus }) {
         <div className="flex flex-col gap-3">
           <Btn onClick={enregistrer} v="primary">✓ Enregistrer</Btn>
           <Btn onClick={tester} v="secondary">{busy ? '…' : '🔌 Tester la connexion'}</Btn>
-          <Btn onClick={maintenant} v="success">{busy ? '…' : '☁️ Sauvegarder maintenant'}</Btn>
+          <Btn onClick={maintenant} v="success">{busy ? '…' : '☁️ Synchroniser maintenant'}</Btn>
           <Btn onClick={() => setPage('accueil')} v="secondary">🏠 Retour à l'accueil</Btn>
         </div>
       </div>
@@ -1490,7 +1595,7 @@ function App() {
   const openPartie = (id) => { setPartieId(id); setPage('scoreboard'); };
 
   const onDelete = (id) => {
-    undoable(d => ({ ...d, parties: d.parties.filter(p => p.id !== id) }), 'Partie supprimée.', () => openPartie(id));
+    undoable(d => ({ ...d, parties: d.parties.filter(p => p.id !== id), supprimees: [...(d.supprimees || []), id] }), 'Partie supprimée.', () => openPartie(id));
     setPage('accueil');
   };
   const onRestart = (id) => {
@@ -1500,7 +1605,7 @@ function App() {
         if (p.id !== id) return p;
         const scores = { partie1: {}, partie2: {} };
         teamIds(p).forEach(pid => { scores.partie1[pid] = EMPTY_SCORE(); scores.partie2[pid] = EMPTY_SCORE(); });
-        return { ...p, scores };
+        return { ...p, scores, modifie: new Date().toISOString() };
       }),
     }), 'Pointages effacés.');
   };
@@ -1514,7 +1619,9 @@ function App() {
   const pushOnce = async () => {
     ghSetPending(true);
     try {
-      await ghPush(dataRef.current);
+      const merged = await ghPush(dataRef.current);
+      /* On garde aussi ce qui a pu être saisi pendant l'envoi */
+      setData(cur => mergeData(cur, merged));
       ghSetPending(false);
       try { localStorage.setItem(GH_LAST_KEY, new Date().toISOString()); } catch (e) {}
       return { ok: true };
@@ -1526,12 +1633,20 @@ function App() {
     }
   };
 
-  // Envoi en attente : repris au démarrage et dès le retour d'Internet
+  /* Au démarrage et au retour d'Internet : envoi en attente, sinon simple récupération
+     des parties saisies sur les autres appareils */
   useEffect(() => {
     const retry = async () => {
-      if (!ghPending() || !ghConfig().token) return;
-      const r = await pushNow();
-      if (r.ok) notify('✔ Sauvegarde en attente envoyée sur GitHub.');
+      if (!ghConfig().token) return;
+      if (ghPending()) {
+        const r = await pushNow();
+        if (r.ok) notify('✔ Sauvegarde en attente envoyée sur GitHub.');
+        return;
+      }
+      try {
+        const remote = await ghPull();
+        if (remote) setData(cur => mergeData(cur, remote));
+      } catch (e) { /* sans Internet ou sans accès : on continue avec les données de l'appareil */ }
     };
     retry();
     window.addEventListener('online', retry);
@@ -1560,7 +1675,7 @@ function App() {
 
   const onSaveNow = async () => {
     const r = await pushNow();
-    if (r.ok) notify('✔ Sauvegardé sur GitHub.');
+    if (r.ok) notify('✔ Synchronisé avec GitHub.');
     else notify(r.error.kind === 'offline' ? "Pas de connexion : la sauvegarde sera envoyée dès que possible." : r.error.message, { type: 'error', duration: 7000 });
   };
 
