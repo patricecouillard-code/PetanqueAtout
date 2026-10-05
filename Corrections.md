@@ -15,7 +15,7 @@ La numérotation est celle de l'analyse du fichier (17 points).
 
 - ✅ **#1 — Pointages négatifs** : les cases acceptent −5, −10, etc.
 - ✅ **#2, #3, #4 — Comptage des 15** : déduit du total selon les règles ; question seulement si le total est possible avec ou sans le 15 ; au plus un 15 par joueur et par manche ; Nb 15 recalculé quand on corrige ou efface.
-- ✅ **Planche corrigée** (6 octobre 2026) : le trou « 15 » vaut **−15** (il n'y a pas de trou à +15). Vérification des totaux, comptage des « 15 » (boules dans le −15), règles et `TotauxPossibles.md` recalculés ; les anciennes données sont remises à jour automatiquement.
+- ✅ **Planche confirmée** (5 octobre 2026) : le trou « 15 » vaut bien **+15** (la courte version à −15 était une erreur, annulée). Les pointages saisis entre-temps sont remis à jour automatiquement.
 - ✅ **#7 — Supprimer un joueur** : le joueur est effacé **seulement de la liste des joueurs** (et donc des tirages). Son nom et toutes ses données sont **conservés partout ailleurs** (statistiques, anciennes parties). Il peut être réintégré.
 
 ---
