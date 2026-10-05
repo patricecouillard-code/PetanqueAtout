@@ -919,6 +919,8 @@ function DayStats({ partie, e1, e2, joueurs }) {
 
 function Scoreboard({ data, setData, partie, setPage, onSaveQuit, onRestart, onDelete, notify }) {
   const [modal15, setModal15] = useState(null);
+  /* Case de pointage active : affiche le bouton ± (claviers sans touche « − ») */
+  const [activeKey, setActiveKey] = useState(null);
   const cellRefs = useRef({});
   /* Cellule ayant le focus et sa valeur au moment où elle l'a reçu */
   const focusInfo = useRef(null);
@@ -1028,6 +1030,7 @@ function Scoreboard({ data, setData, partie, setPage, onSaveQuit, onRestart, onD
     ref: (el) => { if (el) cellRefs.current[key] = el; else delete cellRefs.current[key]; },
     onFocus: (e) => {
       focusInfo.current = { key, val: parseScore(e.target.value) };
+      setActiveKey(key);
       e.target.select();
     },
     onKeyDown: (e) => {
@@ -1036,8 +1039,22 @@ function Scoreboard({ data, setData, partie, setPage, onSaveQuit, onRestart, onD
         commit(key, e.target, e.shiftKey ? -1 : 1);
       }
     },
-    onBlur: (e) => commit(key, e.target, 0),
+    onBlur: (e) => {
+      setTimeout(() => { if (!document.activeElement?.closest?.('.sheet-t')) setActiveKey(null); }, 150);
+      commit(key, e.target, 0);
+    },
   });
+
+  /* ± : inverse le signe du nombre tapé dans la case active, sans quitter la case */
+  const toggleSign = () => {
+    const el = activeKey && cellRefs.current[activeKey];
+    if (!el) return;
+    const val = parseScore(el.value);
+    if (val == null || val === 0) { notify('Tapez d\'abord le nombre, puis ±', { duration: 2500 }); el.focus(); return; }
+    const [pk, id, suit] = activeKey.split('|');
+    handleChange(pk, id, suit, -val);
+    el.focus();
+  };
 
   const handleConfirm15 = (confirmed) => {
     const m = modal15;
@@ -1093,6 +1110,15 @@ function Scoreboard({ data, setData, partie, setPage, onSaveQuit, onRestart, onD
           </div>
         </div>
       </div>
+
+      {/* Bouton ± : en haut à droite, visible au-dessus du clavier tant qu'une case est active */}
+      {activeKey && (
+        <button type="button" aria-label="Changer le signe (moins)"
+          onMouseDown={e => e.preventDefault()} onClick={toggleSign}
+          className="fixed top-20 right-3 z-40 w-16 h-16 rounded-2xl bg-neon text-main text-3xl font-extrabold shadow-2xl active:scale-95">
+          ±
+        </button>
+      )}
 
       {/* Modal Nb 15 (seulement si le total ne permet pas de trancher) : focus sur « Oui », Tab alterne Oui / Non, Entrée valide */}
       <Modal open={!!modal15} title="🏆 15 points ?"
