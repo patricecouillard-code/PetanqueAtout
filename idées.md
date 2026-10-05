@@ -40,11 +40,13 @@ Voir **`Corrections.md`** : liste complète, décisions et état de chaque corre
 ## Comptage des 15 (en place)
 
 L'application déduit le 15 du total de la manche, d'après les règles :
-- total **impossible sans le 15** (ex. 21 en Pique) → 15 compté automatiquement ;
-- total **impossible avec le 15** (ex. 40 en Cœur) → pas de 15, pas de question ;
-- total **possible dans les deux cas** (ex. 5 = 15 − 5 − 5) → l'application demande.
+- total **impossible sans le −15** (ex. −15 ou −50 au Tout atout) → compté automatiquement ;
+- total **impossible avec le −15** (ex. 28 en Pique) → pas de −15, pas de question ;
+- total **possible dans les deux cas** (ex. 5 en Pique = 10 − 5 ou 10 + 10 − 15) → l'application demande.
 
-Un joueur fait au plus un 15 par manche ; corriger ou effacer un pointage met le Nb 15 à jour.
+Le trou « 15 » vaut **−15** (il n'y a pas de trou à +15) ; la colonne « Nb 15 » compte les boules dans ce trou.
+
+Un joueur fait au plus un −15 par manche ; corriger ou effacer un pointage met le Nb 15 à jour.
 La saisie en touchant les trous (plus haut) supprimerait complètement la question.
 
 ## À lire

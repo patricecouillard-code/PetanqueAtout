@@ -117,7 +117,7 @@ function parseScore(v) {
   return Number.isNaN(n) ? null : n;
 }
 
-/* ── Planche : 2 trous par couleur, 1 trou à 15, 2 trous à −5 ──
+/* ── Planche : 2 trous par couleur, 1 trou à −15, 2 trous à −5 (il n'y a pas de trou à +15) ──
    Tous les trous comptent dans toutes les manches ; les trous de la couleur de la manche
    valent le double, et tout vaut le double au Tout atout. Un trou ne reçoit qu'une boule par tour. */
 const HOLES = [
@@ -125,7 +125,7 @@ const HOLES = [
   { k:'trefle', v:6 },  { k:'trefle', v:6 },
   { k:'carreau', v:8 }, { k:'carreau', v:8 },
   { k:'coeur', v:10 },  { k:'coeur', v:10 },
-  { k:'quinze', v:15 },
+  { k:'quinze', v:-15 },
   { k:'moins5', v:-5 }, { k:'moins5', v:-5 },
 ];
 const BOULES = 3;
@@ -194,10 +194,15 @@ function migrateScores(data) {
       const hl = s.highlight15Fields || (s.highlight15Field ? [s.highlight15Field] : []);
       s.highlight15Fields = [...new Set(hl)];
       delete s.highlight15Field;
-      if (s.nb15Extra == null) {
-        const extra = (s.nb15 || 0) - s.highlight15Fields.length;
-        if (extra > 0) s.nb15Extra = extra;
-      }
+      /* 15 ajoutés à la main dans la toute première version (calculé une seule fois) */
+      if (s.nb15Extra == null) s.nb15Extra = Math.max(0, (s.nb15 || 0) - s.highlight15Fields.length);
+      /* Le trou « 15 » vaut −15 : on recalcule les 15 déduits du total (les réponses
+         données pour un total ambigu sont conservées) */
+      SUITS.forEach(su => {
+        const kind = quinzeKind(su.key, s[su.key]);
+        if (s[su.key] == null || kind === 'non') s.highlight15Fields = s.highlight15Fields.filter(k => k !== su.key);
+        else if (kind === 'oui' && !s.highlight15Fields.includes(su.key)) s.highlight15Fields.push(su.key);
+      });
       syncNb15(s);
     });
   }));
@@ -1121,8 +1126,8 @@ function Scoreboard({ data, setData, partie, setPage, onSaveQuit, onRestart, onD
       )}
 
       {/* Modal Nb 15 (seulement si le total ne permet pas de trancher) : focus sur « Oui », Tab alterne Oui / Non, Entrée valide */}
-      <Modal open={!!modal15} title="🏆 15 points ?"
-        message={`${modal15?.nom} a inscrit ${modal15?.val} points en ${modal15?.suitLabel} (${modal15?.pLabel}). Ce total est possible avec ou sans le 15 : y a-t-il eu une boule dans le 15 ?`}
+      <Modal open={!!modal15} title="Trou à −15 ?"
+        message={`${modal15?.nom} a inscrit ${modal15?.val} points en ${modal15?.suitLabel} (${modal15?.pLabel}). Ce total est possible avec ou sans le trou à −15 : y a-t-il eu une boule dans le −15 ?`}
         initialFocus={1}
         onEscape={() => handleConfirm15(false)}
         buttons={[
