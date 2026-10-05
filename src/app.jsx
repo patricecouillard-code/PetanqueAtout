@@ -1050,6 +1050,26 @@ function Scoreboard({ data, setData, partie, setPage, onSaveQuit, onRestart, onD
     },
   });
 
+  /* Le bouton ± disparaît quand on ferme le clavier (Android garde alors la case active)
+     ou quand on touche ailleurs que dans une case */
+  useEffect(() => {
+    if (!activeKey) return;
+    const fermer = () => { const el = document.activeElement; if (el?.closest?.('.sheet-t')) el.blur(); setActiveKey(null); };
+    const vv = window.visualViewport;
+    let min = vv ? vv.height : 0;
+    const onResize = () => {
+      if (vv.height < min) min = vv.height;
+      else if (vv.height - min > 120) fermer();
+    };
+    const onDown = (e) => {
+      if (e.target.closest?.('[data-signe]') || e.target.closest?.('.sheet-t input')) return;
+      fermer();
+    };
+    vv?.addEventListener('resize', onResize);
+    document.addEventListener('pointerdown', onDown);
+    return () => { vv?.removeEventListener('resize', onResize); document.removeEventListener('pointerdown', onDown); };
+  }, [activeKey]);
+
   /* ± : inverse le signe du nombre tapé dans la case active, sans quitter la case */
   const toggleSign = () => {
     const el = activeKey && cellRefs.current[activeKey];
@@ -1118,7 +1138,7 @@ function Scoreboard({ data, setData, partie, setPage, onSaveQuit, onRestart, onD
 
       {/* Bouton ± : en haut à droite, visible au-dessus du clavier tant qu'une case est active */}
       {activeKey && (
-        <button type="button" aria-label="Changer le signe (moins)"
+        <button type="button" data-signe aria-label="Changer le signe (moins)"
           onMouseDown={e => e.preventDefault()} onClick={toggleSign}
           className="fixed top-20 right-3 z-40 w-16 h-16 rounded-2xl bg-neon text-main text-3xl font-extrabold shadow-2xl active:scale-95">
           ±
