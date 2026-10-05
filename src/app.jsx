@@ -510,7 +510,7 @@ function Toast({ toast, onClose }) {
   if (!toast) return null;
   const tone = toast.type === 'error' ? 'border-red-500 bg-red-950' : 'border-neon/60 bg-card';
   return (
-    <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-[60] w-[min(92vw,30rem)] anim-fade" role="status" aria-live="polite">
+    <div className="fixed top-3 left-1/2 -translate-x-1/2 z-[60] w-[min(92vw,30rem)] anim-fade" role="status" aria-live="polite">
       <div className={`flex items-center gap-3 rounded-xl border ${tone} px-4 py-3 shadow-2xl`}>
         <span className="flex-1 text-gray-100">{toast.message}</span>
         {toast.action && (
@@ -776,6 +776,9 @@ function PartieTable({ title, pKey, partie, e1, e2, joueurs, onChange, cellProps
 
   const inputCls = "cell-in bg-main/80 border border-gray-600 text-gray-100 focus:border-neon focus:outline-none focus:ring-2 focus:ring-neon/50 transition-colors";
   const inputHl  = "cell-in bg-amber-900/40 border border-amber-400 text-amber-300 font-bold focus:border-amber-300 focus:outline-none focus:ring-2 focus:ring-amber-400/50 transition-colors";
+  /* Total impossible selon les règles : case encadrée en rouge jusqu'à la correction */
+  const inputBad = "cell-in bg-red-900/50 border-2 border-red-500 text-red-200 font-bold focus:border-red-400 focus:outline-none focus:ring-2 focus:ring-red-500/60 transition-colors";
+  const cls = (id, k) => !totalPossible(k, gs(id, k)) ? inputBad : isHl(id, k) ? inputHl : inputCls;
 
   /* Cellules de manche où un 15 a été fait */
   const isHl = (id, suitKey) => (scores[id]?.highlight15Fields || []).includes(suitKey);
@@ -798,7 +801,7 @@ function PartieTable({ title, pKey, partie, e1, e2, joueurs, onChange, cellProps
           </td>
           {SUITS.map(s => (
             <td key={s.key} className={`in text-center ${isHl(id,s.key) ? 'bg-amber-500/20' : ''}`}>
-              <input type="number" className={isHl(id,s.key) ? inputHl : inputCls}
+              <input type="number" className={cls(id, s.key)} aria-invalid={!totalPossible(s.key, gs(id, s.key))}
                 value={gs(id,s.key) == null ? '' : gs(id,s.key)}
                 onChange={e=>onChange(pKey,id,s.key,parseScore(e.target.value))}
                 {...cellProps(cellKey(pKey,id,s.key))} />
