@@ -39,7 +39,7 @@ La partie se termine quand tous les joueurs ont joué la manche Tout atout.
 - **Tous les trous comptent**, dans toutes les manches.
 - **L'atout** : les trous de la couleur de la manche valent **le double**. Dans la manche Pique, par exemple, un trou ♠ vaut 8 points au lieu de 4. Les autres trous gardent leur valeur normale.
 - **Tout atout** (5e manche) : **tout vaut le double**, même le 15 et les −5.
-- Une boule qui ne tombe dans aucun trou vaut **0**.
+- Une boule qui ne tombe dans aucun trou vaut **0**, qu'elle reste sur la planche ou tombe à côté. Un joueur dont les 3 boules ratent fait **0** : ce total est possible dans toutes les manches.
 - Une boule tombée dans un trou y reste jusqu'à la fin du tour du joueur (ses 3 boules) : **un trou ne peut recevoir qu'une seule boule par tour**.
 - Le pointage d'un joueur peut être **négatif**.
 
