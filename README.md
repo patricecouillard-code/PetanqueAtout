@@ -4,6 +4,7 @@ Application de pointage des parties de **Pétanque Atout** et de statistiques de
 Elle s'installe sur une tablette, un téléphone ou un ordinateur et fonctionne **sans Internet**.
 
 - Règles du jeu : [`ReglesPetanqueAtout.md`](ReglesPetanqueAtout.md)
+- Tous les totaux possibles par manche : [`TotauxPossibles.md`](TotauxPossibles.md)
 - Corrections faites et en suspens : [`Corrections.md`](Corrections.md)
 - Idées pour plus tard : [`idées.md`](idées.md)
 

@@ -75,6 +75,8 @@ Joueur 1 de l'équipe 1, joueur 1 de l'équipe 2, joueur 2 de l'équipe 1, joueu
 
 ### Totaux impossibles
 
+Le détail de **tous les totaux possibles** et des façons de les obtenir est dans [`TotauxPossibles.md`](TotauxPossibles.md).
+
 Avec 3 boules et un trou par boule, certains totaux ne peuvent pas arriver. Tout total hors de cette liste est possible (entre le minimum et le maximum).
 
 | Manche | Min | Max | Totaux impossibles |
