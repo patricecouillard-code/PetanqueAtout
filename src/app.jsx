@@ -1070,6 +1070,38 @@ function Scoreboard({ data, setData, partie, setPage, onSaveQuit, onRestart, onD
     return () => { vv?.removeEventListener('resize', onResize); document.removeEventListener('pointerdown', onDown); };
   }, [activeKey]);
 
+  /* Position du bouton ± : à la hauteur de la case active, toujours dans la partie visible de
+     l'écran (avec le clavier ouvert sur téléphone, seul le bas de la page peut être visible) */
+  const [signePos, setSignePos] = useState(null);
+  useEffect(() => {
+    if (!activeKey) { setSignePos(null); return; }
+    const vv = window.visualViewport;
+    let raf = 0;
+    const placer = () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        const el = cellRefs.current[activeKey];
+        if (!el) return;
+        const r = el.getBoundingClientRect();
+        const vTop = vv ? vv.offsetTop : 0, vLeft = vv ? vv.offsetLeft : 0;
+        const vH = vv ? vv.height : window.innerHeight, vW = vv ? vv.width : window.innerWidth;
+        const size = vH < 420 ? 48 : 64, m = 6;
+        const top = Math.min(Math.max(r.top + r.height / 2 - size / 2, vTop + m), vTop + vH - size - m);
+        let left = vLeft + vW - size - m;
+        if (left < r.right + m && left + size > r.left - m) left = vLeft + m;
+        setSignePos({ top, left, size });
+      });
+    };
+    placer();
+    vv?.addEventListener('resize', placer); vv?.addEventListener('scroll', placer);
+    window.addEventListener('scroll', placer, true); window.addEventListener('resize', placer);
+    return () => {
+      cancelAnimationFrame(raf);
+      vv?.removeEventListener('resize', placer); vv?.removeEventListener('scroll', placer);
+      window.removeEventListener('scroll', placer, true); window.removeEventListener('resize', placer);
+    };
+  }, [activeKey]);
+
   /* ± : inverse le signe du nombre tapé dans la case active, sans quitter la case */
   const toggleSign = () => {
     const el = activeKey && cellRefs.current[activeKey];
@@ -1136,11 +1168,12 @@ function Scoreboard({ data, setData, partie, setPage, onSaveQuit, onRestart, onD
         </div>
       </div>
 
-      {/* Bouton ± : en haut à droite, visible au-dessus du clavier tant qu'une case est active */}
-      {activeKey && (
+      {/* Bouton ± : à la hauteur de la case active, visible au-dessus du clavier */}
+      {activeKey && signePos && (
         <button type="button" data-signe aria-label="Changer le signe (moins)"
           onMouseDown={e => e.preventDefault()} onClick={toggleSign}
-          className="fixed top-20 right-3 z-40 w-16 h-16 rounded-2xl bg-neon text-main text-3xl font-extrabold shadow-2xl active:scale-95">
+          style={{ top: signePos.top, left: signePos.left, width: signePos.size, height: signePos.size }}
+          className="fixed z-40 rounded-2xl bg-neon text-main text-3xl font-extrabold shadow-2xl active:scale-95">
           ±
         </button>
       )}
