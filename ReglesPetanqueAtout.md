@@ -93,6 +93,6 @@ Au **Tout atout**, toutes les valeurs sont doublées : **un total impair est tou
 
 Ces points viennent de l'application actuelle (`index.html`) et n'ont pas encore été confirmés :
 
-- Une séance (une journée) compte **2 parties**, avec les mêmes équipes.
+- Une séance compte **1, 2 ou 3 parties** (2 par défaut), avec les mêmes équipes. On peut ajouter une partie en cours de séance.
 - L'équipe gagnante d'une partie est celle qui a le plus haut total.
 - Le classement de la saison compare les joueurs un par un (total des points, moyenne par partie, meilleur par manche, nombre de 15).

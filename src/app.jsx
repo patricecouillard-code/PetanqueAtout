@@ -13,8 +13,11 @@ const GH_KEY = 'petanqueGitHub';
 const GH_PENDING_KEY = 'petanqueGitHubEnAttente';
 const GH_LAST_KEY = 'petanqueGitHubDerniere';
 const FANTOME = 'Fantôme';
-const PKS = ['partie1', 'partie2'];
-const PLABEL = { partie1: 'Partie 1', partie2: 'Partie 2' };
+const PKS = ['partie1', 'partie2', 'partie3'];
+const PLABEL = { partie1: 'Partie 1', partie2: 'Partie 2', partie3: 'Partie 3' };
+/* #19 — Une séance compte 1, 2 ou 3 parties : celles qui ont une feuille dans « scores »
+   (les anciennes séances en ont toujours 2) */
+const pksOf = (p) => { const k = PKS.filter(pk => p?.scores?.[pk]); return k.length ? k : ['partie1']; };
 
 function uid() {
   if (crypto.randomUUID) return crypto.randomUUID();
@@ -100,7 +103,7 @@ function pkComplete(partie, pk) {
   const sc = partie.scores?.[pk] || {};
   return teamIds(partie).every(id => SUITS.every(su => sc[id]?.[su.key] != null));
 }
-const partieComplete = (p) => PKS.every(pk => pkComplete(p, pk));
+const partieComplete = (p) => pksOf(p).every(pk => pkComplete(p, pk));
 
 /* Moment de création d'une partie (les anciennes données n'ont que la date) */
 const partieTime = (p) => {
@@ -609,6 +612,8 @@ function Joueurs({ data, setData, setPage, onGenerate, notify, undoable }) {
   });
   /* #18 — Équipes automatiques (par défaut, à chaque visite de la page) ou manuelles */
   const [mode, setMode] = useState('auto');
+  /* #19 — Nombre de parties de la séance : 2 par défaut, à chaque visite de la page */
+  const [nbParties, setNbParties] = useState(2);
   const [affect, setAffect] = useState({});
   const inputRef = useRef(null);
   const actifs = data.joueurs.filter(j => !isRetire(j));
@@ -724,8 +729,11 @@ function Joueurs({ data, setData, setPage, onGenerate, notify, undoable }) {
       t1 = sh.slice(0, mid); t2 = sh.slice(mid);
     }
     const e1 = orderTeam(t1, data.joueurs), e2 = orderTeam(t2, data.joueurs);
-    const np = { id: uid(), date: today, createdAt: new Date().toISOString(), equipe1: e1, equipe2: e2, scores: { partie1: {}, partie2: {} } };
-    [...e1, ...e2].forEach(id => { np.scores.partie1[id] = EMPTY_SCORE(); np.scores.partie2[id] = EMPTY_SCORE(); });
+    const np = { id: uid(), date: today, createdAt: new Date().toISOString(), equipe1: e1, equipe2: e2, scores: {} };
+    PKS.slice(0, nbParties).forEach(pk => {
+      np.scores[pk] = {};
+      [...e1, ...e2].forEach(id => { np.scores[pk][id] = EMPTY_SCORE(); });
+    });
 
     /* Enregistre les présences / absences du jour pour chaque joueur */
     const presRec = {};
@@ -824,6 +832,17 @@ function Joueurs({ data, setData, setPage, onGenerate, notify, undoable }) {
                 {lbl}
               </button>
             ))}
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="text-gray-400 font-semibold whitespace-nowrap">Parties :</span>
+            <div className="flex flex-1 rounded-xl border border-gray-600 overflow-hidden">
+              {[1, 2, 3].map(n => (
+                <button key={n} onClick={() => setNbParties(n)}
+                  className={`flex-1 min-h-[44px] font-bold text-lg transition-colors ${nbParties === n ? 'bg-neon text-main' : 'bg-card text-gray-400 hover:text-white'}`}>
+                  {n}
+                </button>
+              ))}
+            </div>
           </div>
           {mode === 'manuel' && (() => {
             const n1 = eqManuel(1).length, n2 = eqManuel(2).length;
@@ -946,11 +965,11 @@ function DayStats({ partie, e1, e2, joueurs }) {
   const ids = [...e1, ...e2];
 
   const ps = (id) => {
-    const s1=partie.scores.partie1?.[id]||{}, s2=partie.scores.partie2?.[id]||{};
+    const ss = pksOf(partie).map(pk => partie.scores[pk]?.[id] || {});
     const r={};
-    SUITS.forEach(su=>{ r[su.key]=(s1[su.key]||0)+(s2[su.key]||0); });
+    SUITS.forEach(su=>{ r[su.key]=ss.reduce((a, x) => a + (x[su.key]||0), 0); });
     r.total = sumSuits(r);
-    r.nb15 = (s1.nb15||0)+(s2.nb15||0);
+    r.nb15 = ss.reduce((a, x) => a + (x.nb15||0), 0);
     return r;
   };
 
@@ -1011,18 +1030,19 @@ function Scoreboard({ data, setData, partie, setPage, onSaveQuit, onRestart, onD
   const e2 = useMemo(() => partie ? orderTeam(partie.equipe2 || [], data.joueurs) : [], [partie, data.joueurs]);
 
   /* Séquence du curseur : manche par manche, en alternant J1 Éq.1, J1 Éq.2, J2 Éq.1, J2 Éq.2…
-     (les positions inexistantes sont sautées), Partie 1 puis Partie 2 */
+     (les positions inexistantes sont sautées), Partie 1 puis Partie 2 (puis Partie 3) */
+  const pks = pksOf(partie);
   const sequence = useMemo(() => {
     const seq = [];
     const n = Math.max(e1.length, e2.length);
-    PKS.forEach(pk => SUITS.forEach(s => {
+    pks.forEach(pk => SUITS.forEach(s => {
       for (let i = 0; i < n; i++) {
         if (e1[i]) seq.push(cellKey(pk, e1[i], s.key));
         if (e2[i]) seq.push(cellKey(pk, e2[i], s.key));
       }
     }));
     return seq;
-  }, [e1, e2]);
+  }, [e1, e2, pks.join()]);
 
   if (!partie) {
     return (
@@ -1047,6 +1067,19 @@ function Scoreboard({ data, setData, partie, setPage, onSaveQuit, onRestart, onD
       p.modifie = new Date().toISOString();
       return nd;
     });
+  };
+
+  /* #19 — Ajouter une partie à la séance (jusqu'à 3), avec les mêmes équipes */
+  const ajouterPartie = () => {
+    const pk = PKS[pks.length];
+    if (!pk) return;
+    setData(prev => ({ ...prev, parties: prev.parties.map(p => {
+      if (p.id !== partie.id) return p;
+      const sc = {};
+      teamIds(p).forEach(id => { sc[id] = EMPTY_SCORE(); });
+      return { ...p, scores: { ...p.scores, [pk]: sc }, modifie: new Date().toISOString() };
+    }) }));
+    notify(`${PLABEL[pk]} ajoutée.`);
   };
 
   const focusCell = (key) => {
@@ -1213,10 +1246,16 @@ function Scoreboard({ data, setData, partie, setPage, onSaveQuit, onRestart, onD
           🃏 Parties du {quand}
         </h2>
 
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 mb-8">
-          <PartieTable title="Partie 1" pKey="partie1" partie={partie} e1={e1} e2={e2} joueurs={data.joueurs} onChange={handleChange} cellProps={cellProps} />
-          <PartieTable title="Partie 2" pKey="partie2" partie={partie} e1={e1} e2={e2} joueurs={data.joueurs} onChange={handleChange} cellProps={cellProps} />
+        <div className={`grid grid-cols-1 ${pks.length > 1 ? 'xl:grid-cols-2' : 'max-w-4xl mx-auto'} gap-4 mb-4`}>
+          {pks.map(pk => (
+            <PartieTable key={pk} title={PLABEL[pk]} pKey={pk} partie={partie} e1={e1} e2={e2} joueurs={data.joueurs} onChange={handleChange} cellProps={cellProps} />
+          ))}
         </div>
+        {pks.length < PKS.length && (
+          <div className="max-w-sm mx-auto mb-8">
+            <Btn onClick={ajouterPartie} v="secondary">➕ Ajouter une partie</Btn>
+          </div>
+        )}
 
         {/* Séparateur double */}
         <div className="my-8 mx-4">
@@ -1289,9 +1328,9 @@ function Parties({ data, openPartie, setPage }) {
             const head = sid !== lastSaison ? saisons.find(s => s.id === sid)?.nom : null;
             lastSaison = sid;
             const complete = partieComplete(p);
-            const p1 = pkComplete(p, 'partie1');
+            const nbFinies = pksOf(p).filter(pk => pkComplete(p, pk)).length;
             const status = complete ? ['Terminée', 'text-emerald-400 border-emerald-500/40']
-              : p1 ? ['Partie 1 terminée', 'text-cyan-300 border-cyan-500/40']
+              : nbFinies ? [nbFinies === 1 ? 'Partie 1 terminée' : `${nbFinies} parties terminées`, 'text-cyan-300 border-cyan-500/40']
               : ['En cours', 'text-amber-300 border-amber-500/40'];
             return (
               <React.Fragment key={p.id}>
@@ -1771,8 +1810,8 @@ function App() {
       ...d,
       parties: d.parties.map(p => {
         if (p.id !== id) return p;
-        const scores = { partie1: {}, partie2: {} };
-        teamIds(p).forEach(pid => { scores.partie1[pid] = EMPTY_SCORE(); scores.partie2[pid] = EMPTY_SCORE(); });
+        const scores = {};
+        pksOf(p).forEach(pk => { scores[pk] = {}; teamIds(p).forEach(pid => { scores[pk][pid] = EMPTY_SCORE(); }); });
         return { ...p, scores, modifie: new Date().toISOString() };
       }),
     }), 'Pointages effacés.');
