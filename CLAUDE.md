@@ -51,4 +51,5 @@ Utilisée surtout sur **tablette**, parfois sur téléphone (en paysage), par Pa
 - **#5** — « Importer des données » remplace tout sans confirmation : en suspens.
 - Bouton **« Recommencer à zéro »** (effacer parties, présences, saisons ; la sauvegarde GitHub doit suivre) :
   proposé, Patrice a dit « on ne fait rien pour l'instant ». Question ouverte : garder ou non les joueurs.
-- Côté Patrice : créer son jeton GitHub et celui de l'ami (aucune sauvegarde n'a encore été faite).
+- Côté Patrice : son jeton GitHub (`PetanqueAtout-Patrice`) est créé et le test de connexion réussit (7 octobre 2026) ;
+  première sauvegarde à confirmer. Jeton de l'ami pas encore créé. Navigateur de Patrice : DuckDuckGo (menu ☰ en bas à droite).
