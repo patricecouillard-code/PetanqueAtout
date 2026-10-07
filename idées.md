@@ -2,6 +2,17 @@
 
 ## À faire
 
+> **7 octobre 2026** — Patrice aime toutes les idées de cette section (y compris les deux nouvelles ci-dessous),
+> mais **on ne les applique pas tout de suite**. Les passer dans `Corrections.md` seulement quand il le demande.
+
+### Équipes équilibrées (proposée le 7 octobre 2026)
+Une troisième façon de former les équipes, à côté de « Automatique » et « Manuel » (#18) : l'application répartit
+les joueurs présents selon leurs moyennes de la saison, pour que les deux équipes soient de force égale.
+
+### Changer les coéquipiers (proposée le 7 octobre 2026)
+Quand on joue plusieurs parties dans la même journée, le tirage automatique évite de remettre ensemble les mêmes
+coéquipiers que dans la partie précédente.
+
 ### Saisie des points en touchant les trous
 Au lieu de taper le total d'un joueur, on touche les trous où ses boules sont tombées (par exemple ♥, ♣, −5), avec un bouton « à côté » pour une boule ratée.
 - L'application calcule le total selon la manche (atout en double, Tout atout tout en double).
