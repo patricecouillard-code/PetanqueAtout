@@ -138,19 +138,19 @@ La numérotation est celle de l'analyse du fichier (17 points).
 
 ---
 
-## #18 — Équipes : tirage automatique ou manuel 📝
+## #18 — Équipes : tirage automatique ou manuel ✅
 
 Demande du 7 octobre 2026 : pouvoir former les équipes **automatiquement** (tirage au hasard, comme aujourd'hui)
 ou **manuellement**. **Automatique par défaut.** Décidé le 7 octobre 2026 :
 
-- 📝 **A. Le choix** : sur la page des joueurs, au-dessus du bouton « ⚡ Générer les équipes », un sélecteur
+- ✅ **A. Le choix** : sur la page des joueurs, au-dessus du bouton « ⚡ Générer les équipes », un sélecteur
   **[ Automatique | Manuel ]**.
-- 📝 **B.** Il revient **toujours à « Automatique »** quand on revient sur la page.
-- 📝 **C. En manuel** : les boutons **[ Éq. 1 ] [ Éq. 2 ]** de chaque joueur présent **apparaissent seulement après
+- ✅ **B.** Il revient **toujours à « Automatique »** quand on revient sur la page.
+- ✅ **C. En manuel** : les boutons **[ Éq. 1 ] [ Éq. 2 ]** de chaque joueur présent **apparaissent seulement après
   avoir choisi « Manuel »** (en automatique, on ne les voit pas). On place les joueurs, puis « ▶ Commencer la partie ».
-- 📝 **D.** En passant à « Manuel », les joueurs sont **déjà placés par un tirage au hasard** ; on déplace seulement
+- ✅ **D.** En passant à « Manuel », les joueurs sont **déjà placés par un tirage au hasard** ; on déplace seulement
   ceux qu'on veut changer.
-- 📝 **E. Fantôme** : si le nombre de joueurs est impair, il est ajouté automatiquement à l'équipe qui a un joueur
+- ✅ **E. Fantôme** : si le nombre de joueurs est impair, il est ajouté automatiquement à l'équipe qui a un joueur
   de moins (toujours en dernier). On ne peut commencer que si les deux équipes ont le même nombre de joueurs
   (Fantôme compris).
 

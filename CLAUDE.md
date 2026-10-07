@@ -31,6 +31,8 @@ Utilisée surtout sur **tablette**, parfois sur téléphone (en paysage), par Pa
 - Source : `src/app.jsx` (React 18, un seul fichier), `src/styles.css` (Tailwind 3), `src/index.html`, `src/sw.js`.
 - **Ne pas modifier à la main** : `index.html`, `app.js`, `app.css`, `sw.js`, `lib/` — produits par `build.mjs`.
 - Préparer : `npm install` (une fois) puis `npm run build`. Toujours rebâtir et committer les fichiers produits.
+- **Sauvegarde intouchable** : branche `sauvegarde-version-2-2026-10-07` = version 2 telle que publiée le 7 octobre 2026,
+  avant le #18. Patrice a demandé qu'elle ne soit **jamais remplacée** : ne jamais y pousser ni la supprimer.
 - Branche : **`Main`** (avec majuscule). Publication automatique sur GitHub Pages à chaque push :
   https://patricecouillard-code.github.io/PetanqueAtout/ (fichier `.nojekyll` : publié tel quel).
 - Tester dans Chromium avec Playwright (serveur local `python3 -m http.server`), y compris téléphone en

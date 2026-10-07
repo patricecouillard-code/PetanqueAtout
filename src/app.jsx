@@ -607,6 +607,9 @@ function Joueurs({ data, setData, setPage, onGenerate, notify, undoable }) {
     data.joueurs.forEach(j => { p[j.id] = j.id in rec ? rec[j.id] : true; });
     return p;
   });
+  /* #18 — Équipes automatiques (par défaut, à chaque visite de la page) ou manuelles */
+  const [mode, setMode] = useState('auto');
+  const [affect, setAffect] = useState({});
   const inputRef = useRef(null);
   const actifs = data.joueurs.filter(j => !isRetire(j));
   /* Le Fantôme est toujours affiché en dernier */
@@ -643,11 +646,13 @@ function Joueurs({ data, setData, setPage, onGenerate, notify, undoable }) {
     if (back) {
       setData(p => ({ ...p, joueurs: p.joueurs.map(j => j.id === back.id ? { ...j, retire: false } : j) }));
       setPres(p => ({ ...p, [back.id]: true }));
+      if (mode === 'manuel') placer(back.id);
       notify(`« ${back.nom} » est de retour avec ses statistiques.`);
     } else {
       const id = uid();
       setData(p => ({ ...p, joueurs: [...p.joueurs, { id, nom: n }] }));
       setPres(p => ({ ...p, [id]: true }));
+      if (mode === 'manuel') placer(id);
     }
     setNewName('');
     inputRef.current?.focus();
@@ -673,8 +678,29 @@ function Joueurs({ data, setData, setPage, onGenerate, notify, undoable }) {
     const v = !pres[id];
     setPres(p => ({ ...p, [id]: v }));
     storePresence(id, v);
+    if (v && mode === 'manuel') placer(id);
   };
   const presentCount = actifs.filter(j => !isFantome(j) && pres[j.id]).length;
+  const presentsIds = () => actifs.filter(j => !isFantome(j) && pres[j.id]).map(j => j.id);
+
+  /* Manuel : on part d'un tirage au hasard, puis on déplace les joueurs voulus */
+  const passerManuel = () => {
+    const ids = presentsIds();
+    const ghost = data.joueurs.find(isFantome);
+    if (ids.length % 2 !== 0) ids.push(ghost.id);
+    const sh = shuffle(ids), mid = Math.ceil(sh.length / 2);
+    const a = {};
+    sh.forEach((id, i) => { if (id !== ghost.id) a[id] = i < mid ? 1 : 2; });
+    setAffect(a);
+    setMode('manuel');
+  };
+  /* Un joueur qui devient présent va dans l'équipe qui a le moins de joueurs */
+  const placer = (id) => setAffect(a => {
+    const ids = presentsIds().filter(x => x !== id);
+    const n1 = ids.filter(x => a[x] === 1).length, n2 = ids.filter(x => a[x] === 2).length;
+    return { ...a, [id]: n1 <= n2 ? 1 : 2 };
+  });
+  const eqManuel = (n) => presentsIds().filter(id => affect[id] === n);
 
   /* Générer les équipes crée toujours une nouvelle partie ; les parties existantes sont conservées */
   const doGen = () => {
@@ -682,11 +708,22 @@ function Joueurs({ data, setData, setPage, onGenerate, notify, undoable }) {
     const ids = reels.filter(j => pres[j.id]).map(j => j.id);
     if (ids.length < 2) { notify('Il faut au moins 2 joueurs présents.', { type: 'error' }); return; }
     const ghost = data.joueurs.find(isFantome);
-    if (ids.length % 2 !== 0) ids.push(ghost.id);
-
-    const sh = shuffle(ids);
-    const mid = Math.ceil(sh.length / 2);
-    const e1 = orderTeam(sh.slice(0, mid), data.joueurs), e2 = orderTeam(sh.slice(mid), data.joueurs);
+    let t1, t2;
+    if (mode === 'manuel') {
+      t1 = eqManuel(1); t2 = eqManuel(2);
+      /* Nombre impair : le Fantôme va dans l'équipe qui a un joueur de moins */
+      if (t1.length === t2.length + 1) t2.push(ghost.id);
+      else if (t2.length === t1.length + 1) t1.push(ghost.id);
+      if (t1.length !== t2.length) {
+        notify('Les deux équipes doivent avoir le même nombre de joueurs.', { type: 'error' }); return;
+      }
+    } else {
+      if (ids.length % 2 !== 0) ids.push(ghost.id);
+      const sh = shuffle(ids);
+      const mid = Math.ceil(sh.length / 2);
+      t1 = sh.slice(0, mid); t2 = sh.slice(mid);
+    }
+    const e1 = orderTeam(t1, data.joueurs), e2 = orderTeam(t2, data.joueurs);
     const np = { id: uid(), date: today, createdAt: new Date().toISOString(), equipe1: e1, equipe2: e2, scores: { partie1: {}, partie2: {} } };
     [...e1, ...e2].forEach(id => { np.scores.partie1[id] = EMPTY_SCORE(); np.scores.partie2[id] = EMPTY_SCORE(); });
 
@@ -710,6 +747,7 @@ function Joueurs({ data, setData, setPage, onGenerate, notify, undoable }) {
               <tr className="bg-accent/60 text-xs uppercase tracking-wider text-gray-400">
                 <th className="text-left py-3 px-4 whitespace-nowrap">Nom du joueur</th>
                 <th className="text-center py-3 px-2 w-20 whitespace-nowrap">Présent</th>
+                {mode === 'manuel' && <th className="text-center py-3 px-1 whitespace-nowrap">Équipe</th>}
                 <th className="text-center py-3 px-2 w-24 whitespace-nowrap">Actions</th>
               </tr>
             </thead>
@@ -739,6 +777,23 @@ function Joueurs({ data, setData, setPage, onGenerate, notify, undoable }) {
                         className="w-6 h-6 rounded accent-neon cursor-pointer" />
                     )}
                   </td>
+                  {mode === 'manuel' && (
+                    <td className="text-center py-2 px-1">
+                      {isFantome(j) ? (
+                        <span className="text-xs text-gray-500">auto</span>
+                      ) : pres[j.id] && (
+                        <div className="flex gap-1 justify-center">
+                          {[[1, 'border-cyan-400 bg-cyan-400 text-main', 'border-cyan-400/40 text-cyan-400/70'],
+                            [2, 'border-amber-400 bg-amber-400 text-main', 'border-amber-400/40 text-amber-400/70']].map(([n, on, off]) => (
+                            <button key={n} onClick={() => setAffect(a => ({ ...a, [j.id]: n }))}
+                              className={`min-w-[52px] min-h-[40px] px-2 rounded-lg border-2 text-sm font-bold whitespace-nowrap transition-colors ${affect[j.id] === n ? on : off}`}>
+                              Éq. {n}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </td>
+                  )}
                   <td className="text-center py-3 px-2">
                     {!isFantome(j) && (
                       <div className="flex gap-2 justify-center">
@@ -762,7 +817,29 @@ function Joueurs({ data, setData, setPage, onGenerate, notify, undoable }) {
         </div>
 
         <div className="flex flex-col gap-3">
-          <Btn onClick={doGen} v="success">⚡ Générer les équipes ({presentCount} joueurs)</Btn>
+          <div className="flex rounded-xl border border-gray-600 overflow-hidden">
+            {[['auto', '⚡ Automatique'], ['manuel', '✋ Manuel']].map(([m, lbl]) => (
+              <button key={m} onClick={() => m === 'manuel' ? (mode !== 'manuel' && passerManuel()) : setMode('auto')}
+                className={`flex-1 min-h-[44px] font-semibold transition-colors ${mode === m ? 'bg-neon text-main' : 'bg-card text-gray-400 hover:text-white'}`}>
+                {lbl}
+              </button>
+            ))}
+          </div>
+          {mode === 'manuel' && (() => {
+            const n1 = eqManuel(1).length, n2 = eqManuel(2).length;
+            const ok = n1 === n2 || Math.abs(n1 - n2) === 1;
+            return (
+              <p className={`text-center text-sm ${ok ? 'text-gray-400' : 'text-red-400 font-semibold'}`}>
+                <span className="text-cyan-400">Éq. 1 : {n1}{n1 < n2 && ok ? ' + 👻' : ''}</span>
+                {' · '}
+                <span className="text-amber-400">Éq. 2 : {n2}{n2 < n1 && ok ? ' + 👻' : ''}</span>
+                {!ok && ' — il faut le même nombre de joueurs'}
+              </p>
+            );
+          })()}
+          {mode === 'manuel'
+            ? <Btn onClick={doGen} v="success">▶ Commencer la partie ({presentCount} joueurs)</Btn>
+            : <Btn onClick={doGen} v="success">⚡ Générer les équipes ({presentCount} joueurs)</Btn>}
           <Btn onClick={()=>setPage('accueil')} v="secondary">← Retour à l'accueil</Btn>
         </div>
       </div>
