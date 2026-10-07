@@ -156,6 +156,26 @@ ou **manuellement**. **Automatique par défaut.** Décidé le 7 octobre 2026 :
 
 ---
 
+## #19 — Choisir 1, 2 ou 3 parties par séance ❓
+
+Demande du 7 octobre 2026 : pouvoir choisir **1, 2 ou 3 parties** dans la même journée (aujourd'hui, une séance
+compte toujours 2 parties, avec les mêmes équipes).
+
+Questions à décider :
+
+- ❓ **A. Où se fait le choix ?** Proposition : sur la page des joueurs, à côté du choix Automatique / Manuel,
+  un sélecteur **Parties : [ 1 | 2 | 3 ]**.
+- ❓ **B. Valeur de départ ?** Proposition : **2** (comme aujourd'hui) chaque fois qu'on arrive sur la page.
+  Autre possibilité : reprendre le dernier choix fait.
+- ❓ **C. Changer d'idée pendant la séance ?** Proposition : sur la feuille de pointage, un bouton
+  « ➕ Ajouter une partie » (jusqu'à 3). Une partie prévue mais pas jouée ne compte pas, comme aujourd'hui (#9).
+- ❓ **D. Mêmes équipes ?** Proposition : oui, les mêmes équipes pour toutes les parties de la séance (comme
+  aujourd'hui). Pour changer d'équipes, on génère une nouvelle séance (#6).
+- ❓ **E. Statistiques :** proposition — rien ne change dans les calculs (moyenne par partie, etc.) ; la 3e partie
+  apparaît simplement partout où les parties 1 et 2 apparaissent. Les anciennes séances restent à 2 parties.
+
+---
+
 ## #17 — Victoires d'équipe : aucun changement ✔️
 
 Les victoires sont des victoires d'**équipe** (les équipes changent à chaque partie) ; les meilleurs joueurs se retrouvent déjà dans les statistiques individuelles. **On ne suit pas les victoires.**
