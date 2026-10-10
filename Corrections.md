@@ -176,6 +176,25 @@ Décidé et fait le 7 octobre 2026 (« on verra à l'usage ») :
 
 ---
 
+## #20 — Faire disparaître certains joueurs des statistiques avancées ❓
+
+Demande du 10 octobre 2026 : certains joueurs « n'ont vraiment pas rapport » et ne devraient plus apparaître
+dans les statistiques avancées (exception à la règle « on garde tous les joueurs », #7).
+
+Questions à décider :
+
+- ❓ **A. Quels joueurs ?** (noms à donner par Patrice)
+- ❓ **B. Les cacher ou les supprimer ?**
+  - *Cacher* (proposition) : le joueur disparaît de la liste **et** de toutes les statistiques, mais ses pointages
+    restent dans les anciennes parties (les totaux d'équipe ne changent pas). On peut le faire revenir.
+  - *Supprimer pour de bon* : le joueur et ses pointages sont effacés partout, y compris des anciennes parties
+    (les totaux d'équipe de ces parties changent). Impossible de revenir en arrière.
+- ❓ **C. Comment ?** Proposition : dans la page des joueurs, sur un joueur effacé de la liste (🗑️), un bouton
+  « Cacher aussi des statistiques », avec le message « … — Annuler » habituel.
+- ❓ **D. Parties d'essai :** si ces joueurs n'ont joué que des parties d'essai, faut-il supprimer ces parties aussi ?
+
+---
+
 ## #17 — Victoires d'équipe : aucun changement ✔️
 
 Les victoires sont des victoires d'**équipe** (les équipes changent à chaque partie) ; les meilleurs joueurs se retrouvent déjà dans les statistiques individuelles. **On ne suit pas les victoires.**
