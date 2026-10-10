@@ -13,6 +13,13 @@ les joueurs présents selon leurs moyennes de la saison, pour que les deux équi
 Quand on joue plusieurs parties dans la même journée, le tirage automatique évite de remettre ensemble les mêmes
 coéquipiers que dans la partie précédente.
 
+### Cacher un joueur des statistiques (proposée le 10 octobre 2026)
+Sur un joueur effacé de la liste, un bouton « Cacher aussi des statistiques » (avec « … — Annuler ») : il disparaît
+des statistiques, mais ses pointages restent dans les anciennes parties. On peut le faire revenir.
+
+### Supprimer les parties d'essai (proposée le 10 octobre 2026)
+Pouvoir supprimer d'un coup les parties d'essai (par exemple celles jouées par des joueurs d'essai).
+
 ### Saisie des points en touchant les trous
 Au lieu de taper le total d'un joueur, on touche les trous où ses boules sont tombées (par exemple ♥, ♣, −5), avec un bouton « à côté » pour une boule ratée.
 - L'application calcule le total selon la manche (atout en double, Tout atout tout en double).

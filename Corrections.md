@@ -176,22 +176,17 @@ Décidé et fait le 7 octobre 2026 (« on verra à l'usage ») :
 
 ---
 
-## #20 — Faire disparaître certains joueurs des statistiques avancées ❓
+## #20 — Supprimer des joueurs d'essai 📝
 
-Demande du 10 octobre 2026 : certains joueurs « n'ont vraiment pas rapport » et ne devraient plus apparaître
-dans les statistiques avancées (exception à la règle « on garde tous les joueurs », #7).
+Demande du 10 octobre 2026 : certains joueurs « n'ont vraiment pas rapport » (exception à la règle
+« on garde tous les joueurs », #7). Décidé le 10 octobre 2026 :
 
-Questions à décider :
-
-- ❓ **A. Quels joueurs ?** (noms à donner par Patrice)
-- ❓ **B. Les cacher ou les supprimer ?**
-  - *Cacher* (proposition) : le joueur disparaît de la liste **et** de toutes les statistiques, mais ses pointages
-    restent dans les anciennes parties (les totaux d'équipe ne changent pas). On peut le faire revenir.
-  - *Supprimer pour de bon* : le joueur et ses pointages sont effacés partout, y compris des anciennes parties
-    (les totaux d'équipe de ces parties changent). Impossible de revenir en arrière.
-- ❓ **C. Comment ?** Proposition : dans la page des joueurs, sur un joueur effacé de la liste (🗑️), un bouton
-  « Cacher aussi des statistiques », avec le message « … — Annuler » habituel.
-- ❓ **D. Parties d'essai :** si ces joueurs n'ont joué que des parties d'essai, faut-il supprimer ces parties aussi ?
+- 📝 **A. Joueurs :** ceux nommés **1, 2, 3, 4, 5, 6, 7 et w**.
+- 📝 **B. Supprimés pour de bon** : le joueur et ses pointages sont effacés partout (liste, statistiques,
+  présences, anciennes parties). Les totaux d'équipe des parties où ils ont joué changent. Pas de retour en arrière.
+  Fait automatiquement à l'ouverture de l'application (aussi pour les données qui reviendraient de GitHub).
+- ❌ **C.** Pas de bouton dans l'application (idée gardée dans `idées.md`).
+- ❌ **D.** On ne supprime pas les parties où ils ont joué (idée gardée dans `idées.md`).
 
 ---
 
