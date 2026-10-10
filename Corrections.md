@@ -176,13 +176,13 @@ Décidé et fait le 7 octobre 2026 (« on verra à l'usage ») :
 
 ---
 
-## #20 — Supprimer des joueurs d'essai 📝
+## #20 — Supprimer des joueurs d'essai ✅
 
 Demande du 10 octobre 2026 : certains joueurs « n'ont vraiment pas rapport » (exception à la règle
 « on garde tous les joueurs », #7). Décidé le 10 octobre 2026 :
 
-- 📝 **A. Joueurs :** ceux nommés **1, 2, 3, 4, 5, 6, 7 et w**.
-- 📝 **B. Supprimés pour de bon** : le joueur et ses pointages sont effacés partout (liste, statistiques,
+- ✅ **A. Joueurs :** ceux nommés **1, 2, 3, 4, 5, 6, 7 et w**.
+- ✅ **B. Supprimés pour de bon** : le joueur et ses pointages sont effacés partout (liste, statistiques,
   présences, anciennes parties). Les totaux d'équipe des parties où ils ont joué changent. Pas de retour en arrière.
   Fait automatiquement à l'ouverture de l'application (aussi pour les données qui reviendraient de GitHub).
 - ❌ **C.** Pas de bouton dans l'application (idée gardée dans `idées.md`).

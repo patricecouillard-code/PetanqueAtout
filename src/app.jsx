@@ -225,6 +225,25 @@ function recoverPlayers(data) {
   return data;
 }
 
+/* #20 — Joueurs d'essai supprimés pour de bon (décision du 10 octobre 2026) : le joueur, ses pointages
+   et ses présences sont effacés partout. Refait à chaque ouverture, pour les données qui reviendraient
+   d'un autre appareil ou de GitHub. Les parties où ils ont joué sont conservées. */
+const JOUEURS_SUPPRIMES = ['1', '2', '3', '4', '5', '6', '7', 'w'];
+function purgePlayers(data) {
+  const ids = new Set(data.joueurs.filter(j => !isFantome(j) && JOUEURS_SUPPRIMES.includes(norm(j.nom))).map(j => j.id));
+  if (!ids.size) return data;
+  const keep = (id) => !ids.has(id);
+  const sansEux = (o) => Object.fromEntries(Object.entries(o || {}).filter(([k]) => keep(k)));
+  data.joueurs = data.joueurs.filter(j => keep(j.id));
+  data.parties.forEach(p => {
+    p.equipe1 = (p.equipe1 || []).filter(keep);
+    p.equipe2 = (p.equipe2 || []).filter(keep);
+    PKS.forEach(pk => { if (p.scores?.[pk]) p.scores[pk] = sansEux(p.scores[pk]); });
+  });
+  Object.keys(data.presences || {}).forEach(date => { data.presences[date] = sansEux(data.presences[date]); });
+  return data;
+}
+
 /* Le Fantôme existe toujours dans la liste des joueurs */
 function ensureFantome(data) {
   const g = data.joueurs.find(j => j.fantome || j.nom === FANTOME);
@@ -245,7 +264,7 @@ function ensureSaisons(data) {
 
 function migrateData(d) {
   const data = { joueurs: d.joueurs || [], parties: d.parties || [], presences: d.presences || {}, saisons: d.saisons || [], supprimees: d.supprimees || [] };
-  return ensureSaisons(ensureFantome(recoverPlayers(migrateScores(data))));
+  return ensureSaisons(ensureFantome(recoverPlayers(purgePlayers(migrateScores(data)))));
 }
 
 /* ═══════════════════════════════════════════════

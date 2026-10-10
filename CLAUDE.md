@@ -45,6 +45,8 @@ Utilisée surtout sur **tablette**, parfois sur téléphone (en paysage), par Pa
 - Sauvegarde : dépôt **privé** `patricecouillard-code/PetanqueAtout-Data`, fichier `petanque-atout.json`,
   par l'API contents de GitHub. Chaque envoi **fusionne** avec le fichier existant (`mergeData`) : joueurs
   dédoublonnés par nom, parties par `modifie` le plus récent, parties supprimées dans `supprimees`.
+- **#20** : `purgePlayers` (dans `migrateData`) supprime à chaque ouverture les joueurs nommés 1 à 7 et w, avec leurs
+  pointages et présences (décision de Patrice du 10 octobre 2026). Patrice a exporté ses données juste avant.
 - Toute modification du format des données doit passer par la migration (`migrateScores`) pour que les
   anciennes données restent valides.
 
