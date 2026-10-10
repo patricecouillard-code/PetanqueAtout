@@ -54,6 +54,7 @@ Utilisée surtout sur **tablette**, parfois sur téléphone (en paysage), par Pa
 
 - **#18** (équipes manuelles) et **#19** (1, 2 ou 3 parties) publiés le 7 octobre 2026 : Patrice les essaie,
   « on verra à l'usage ». Attendre son retour.
+- **#21** (bouton « 👥 Joueurs » sur l'accueil) publié le 10 octobre 2026, à l'essai : « pas certain qu'on va le garder ».
 - Idées aimées mais **pas tout de suite** (`idées.md`) : équipes équilibrées, changer les coéquipiers, saisie en
   touchant les trous, saisie joueur par joueur, classement « tous les temps ».
 - Ne rien appliquer tant que Patrice n'a pas dit que sa liste est terminée (« c'est tout, vas-y »).

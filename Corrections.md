@@ -190,17 +190,17 @@ Demande du 10 octobre 2026 : certains joueurs « n'ont vraiment pas rapport » (
 
 ---
 
-## #21 — Bouton « Joueurs » sur l'accueil ❓
+## #21 — Bouton « Joueurs » sur l'accueil ✅
 
 Demande du 10 octobre 2026 : pouvoir gérer les joueurs sans passer par « Nouvelle partie ».
 
-Questions à décider :
+Décidé et fait le 10 octobre 2026 (à l'essai : « pas certain qu'on va le garder ») :
 
-- ❓ **A. Où ?** Proposition : sur l'accueil, un bouton **« 👥 Joueurs »**, juste sous « 🃏 Nouvelle partie ».
-- ❓ **B. Que contient la page ?** Proposition : la même liste que dans « Nouvelle partie » (ajouter, modifier ✏️,
+- ✅ **A. Où ?** Proposition : sur l'accueil, un bouton **« 👥 Joueurs »**, juste sous « 🃏 Nouvelle partie ».
+- ✅ **B. Que contient la page ?** Proposition : la même liste que dans « Nouvelle partie » (ajouter, modifier ✏️,
   effacer 🗑️), **sans** la colonne Présent ni ce qui sert à lancer une partie (Automatique / Manuel, Parties 1-2-3,
   bouton « Générer les équipes »). Seulement « ← Retour à l'accueil » en bas.
-- ❓ **C.** « 🃏 Nouvelle partie » ne change pas : on peut toujours y ajouter un joueur au dernier moment.
+- ✅ **C.** « 🃏 Nouvelle partie » ne change pas : on peut toujours y ajouter un joueur au dernier moment.
 
 ---
 

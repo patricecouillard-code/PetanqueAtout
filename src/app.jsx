@@ -602,6 +602,7 @@ function Accueil({ data, setPage, enCours, openPartie, onSaveQuit, ghStatus }) {
           </div>
         )}
         <Btn onClick={() => setPage('joueurs')} v={enCours ? 'secondary' : 'primary'} className={enCours ? '' : 'glow'}>🃏 Nouvelle partie</Btn>
+        <Btn onClick={() => setPage('gestionJoueurs')} v="secondary">👥 Joueurs</Btn>
         {data.parties.length > 0 && <Btn onClick={() => setPage('parties')} v="secondary">📋 Liste des parties</Btn>}
         <Btn onClick={() => setPage('statistiques')} v="secondary">📊 Statistiques</Btn>
         <Btn onClick={onSaveQuit} v="danger">💾 Sauvegarder et quitter</Btn>
@@ -617,7 +618,9 @@ function Accueil({ data, setPage, enCours, openPartie, onSaveQuit, ghStatus }) {
    PAGE : JOUEURS
    ═══════════════════════════════════════════════ */
 
-function Joueurs({ data, setData, setPage, onGenerate, notify, undoable }) {
+/* « seul » (#21) : page ouverte par le bouton « 👥 Joueurs » de l'accueil — gestion de la liste seulement,
+   sans présences ni lancement de partie */
+function Joueurs({ data, setData, setPage, onGenerate, notify, undoable, seul = false }) {
   const today = todayISO();
   const [newName, setNewName] = useState('');
   const [editId, setEditId] = useState(null);
@@ -766,14 +769,14 @@ function Joueurs({ data, setData, setPage, onGenerate, notify, undoable }) {
     <div className="min-h-screen p-4 pb-8 anim-fade">
       <div className="max-w-lg mx-auto">
         <h2 className="text-2xl font-bold text-neon mb-1 text-center">👥 Gestion des joueurs</h2>
-        <p className="text-gray-500 text-center text-sm mb-6">{liste.length - 1} joueur{liste.length - 1 !== 1 ? 's' : ''} · {presentCount} présent{presentCount !== 1 ? 's' : ''}</p>
+        <p className="text-gray-500 text-center text-sm mb-6">{liste.length - 1} joueur{liste.length - 1 !== 1 ? 's' : ''}{!seul && <> · {presentCount} présent{presentCount !== 1 ? 's' : ''}</>}</p>
 
         <div className="bg-card rounded-2xl border border-accent/50 overflow-hidden mb-6">
           <table className="w-full">
             <thead>
               <tr className="bg-accent/60 text-xs uppercase tracking-wider text-gray-400">
                 <th className="text-left py-3 px-4 whitespace-nowrap">Nom du joueur</th>
-                <th className="text-center py-3 px-2 w-20 whitespace-nowrap">Présent</th>
+                {!seul && <th className="text-center py-3 px-2 w-20 whitespace-nowrap">Présent</th>}
                 {mode === 'manuel' && <th className="text-center py-3 px-1 whitespace-nowrap">Équipe</th>}
                 <th className="text-center py-3 px-2 w-24 whitespace-nowrap">Actions</th>
               </tr>
@@ -796,14 +799,14 @@ function Joueurs({ data, setData, setPage, onGenerate, notify, undoable }) {
                       <span onDoubleClick={()=>startEdit(j)} className="cursor-pointer hover:text-neon transition-colors">{j.nom}</span>
                     )}
                   </td>
-                  <td className="text-center py-3 px-2">
+                  {!seul && <td className="text-center py-3 px-2">
                     {isFantome(j) ? (
                       <span className="text-xs text-gray-500" title="Ajouté automatiquement si le nombre de joueurs est impair">auto</span>
                     ) : (
                       <input type="checkbox" checked={!!pres[j.id]} onChange={()=>toggle(j.id)}
                         className="w-6 h-6 rounded accent-neon cursor-pointer" />
                     )}
-                  </td>
+                  </td>}
                   {mode === 'manuel' && (
                     <td className="text-center py-2 px-1">
                       {isFantome(j) ? (
@@ -844,6 +847,7 @@ function Joueurs({ data, setData, setPage, onGenerate, notify, undoable }) {
         </div>
 
         <div className="flex flex-col gap-3">
+          {!seul && <>
           <div className="flex rounded-xl border border-gray-600 overflow-hidden">
             {[['auto', '⚡ Automatique'], ['manuel', '✋ Manuel']].map(([m, lbl]) => (
               <button key={m} onClick={() => m === 'manuel' ? (mode !== 'manuel' && passerManuel()) : setMode('auto')}
@@ -878,6 +882,7 @@ function Joueurs({ data, setData, setPage, onGenerate, notify, undoable }) {
           {mode === 'manuel'
             ? <Btn onClick={doGen} v="success">▶ Commencer la partie ({presentCount} joueurs)</Btn>
             : <Btn onClick={doGen} v="success">⚡ Générer les équipes ({presentCount} joueurs)</Btn>}
+          </>}
           <Btn onClick={()=>setPage('accueil')} v="secondary">← Retour à l'accueil</Btn>
         </div>
       </div>
@@ -1916,6 +1921,8 @@ function App() {
   switch (page) {
     case 'joueurs':
       content = <Joueurs data={data} setData={setData} setPage={setPage} onGenerate={openPartie} notify={notify} undoable={undoable} />; break;
+    case 'gestionJoueurs':
+      content = <Joueurs data={data} setData={setData} setPage={setPage} onGenerate={openPartie} notify={notify} undoable={undoable} seul />; break;
     case 'scoreboard':
       content = <Scoreboard data={data} setData={setData} partie={curPartie} setPage={setPage} onSaveQuit={onSaveQuit}
         onRestart={onRestart} onDelete={onDelete} notify={notify} />; break;
