@@ -243,16 +243,13 @@ de confirmation ». Décidé le 21 octobre 2026 :
 Demande du 21 octobre 2026 : un bouton à glissière pour compter les 15 ou non. Si « Non » est choisi, plus aucun
 message « 15 points ? ». **Patrice veut seulement le noter pour l'instant.**
 
-Questions à décider (plus tard) :
-
-- ❓ **A. Où ?** Proposition : dans « 🃏 Nouvelle partie », avec Automatique / Manuel et Parties 1-2-3 :
-  **Compter les 15 : [ Oui ⬤ ]**. Autres possibilités : sur la feuille de pointage (changeable en cours de partie),
-  ou une seule fois pour toutes dans les réglages.
-- ❓ **B. Valeur de départ ?** Proposition : **Oui** (comme aujourd'hui).
-- ❓ **C. Avec « Non » :** plus de question « 15 points ? », plus de 15 comptés automatiquement, plus de cases orange ;
-  la colonne Nb 15 de cette partie reste vide et ne compte pas dans les statistiques des 15.
-- ❓ **D. Les totaux impossibles** (case rouge) restent signalés même avec « Non » ? Proposition : oui (ça attrape
-  les fautes de frappe).
+- ❓ **A. Où ?** Patrice va y réfléchir (« je vais voir »). Possibilités : dans « 🃏 Nouvelle partie » (avec
+  Automatique / Manuel et Parties 1-2-3), sur la feuille de pointage (changeable en cours de partie), ou une seule
+  fois pour toutes dans les réglages.
+- 📝 **B. Valeur de départ : Oui** (comme aujourd'hui).
+- 📝 **C. Avec « Non » :** les pointages et les totaux se calculent comme maintenant, mais plus de question
+  « 15 points ? », plus de 15 comptés (Nb 15), plus de cases orange.
+- 📝 **D.** Les totaux impossibles (case rouge) restent signalés même avec « Non » (ça attrape les fautes de frappe).
 
 ---
 
