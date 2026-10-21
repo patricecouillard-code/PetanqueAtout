@@ -538,11 +538,16 @@ function Toast({ toast, onClose }) {
   const tone = toast.type === 'error' ? 'border-red-500 bg-red-950' : 'border-neon/60 bg-card';
   return (
     <div className="fixed top-3 left-1/2 -translate-x-1/2 z-[60] w-[min(92vw,30rem)] anim-fade" role="status" aria-live="polite">
-      <div className={`flex items-center gap-3 rounded-xl border ${tone} px-4 py-3 shadow-2xl`}>
+      <div className={`relative overflow-hidden flex items-center gap-3 rounded-xl border ${tone} px-4 py-3 shadow-2xl`}>
         <span className="flex-1 text-gray-100">{toast.message}</span>
         {toast.action && (
           <button onClick={() => { toast.action.onClick(); onClose(); }}
             className="px-3 py-1.5 rounded-lg bg-neon text-main font-bold hover:bg-neon/80">{toast.action.label}</button>
+        )}
+        {/* Jauge : le temps qui reste pour « Annuler » */}
+        {toast.action && (
+          <div key={toast.id} className="jauge absolute left-0 bottom-0 h-1.5 w-full bg-neon"
+            style={{ animationDuration: `${toast.duration || 4000}ms` }} />
         )}
       </div>
     </div>

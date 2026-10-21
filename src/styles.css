@@ -9,6 +9,9 @@ input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; marg
 input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
 .anim-fade { animation: fadeIn 0.3s ease-out; }
+/* Jauge du message « Annuler » : se vide pendant le temps qui reste */
+@keyframes jaugeVide { from { transform: scaleX(1); } to { transform: scaleX(0); } }
+.jauge { transform-origin: left; animation-name: jaugeVide; animation-timing-function: linear; animation-fill-mode: forwards; }
 @keyframes glowPulse {
   0%, 100% { box-shadow: 0 0 8px rgba(0,200,224,0.25); }
   50% { box-shadow: 0 0 24px rgba(0,200,224,0.5); }

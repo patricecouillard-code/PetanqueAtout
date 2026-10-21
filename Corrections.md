@@ -253,6 +253,13 @@ message « 15 points ? ». **Patrice veut seulement le noter pour l'instant.**
 
 ---
 
+## #25 — Jauge dans le message « Annuler » ✅
+
+Demande du 21 octobre 2026, appliquée tout de suite : dans le message « … — Annuler », une jauge (comme une jauge
+d'essence) se vide pendant les 7 secondes où l'on peut encore annuler.
+
+---
+
 ## #17 — Victoires d'équipe : aucun changement ✔️
 
 Les victoires sont des victoires d'**équipe** (les équipes changent à chaque partie) ; les meilleurs joueurs se retrouvent déjà dans les statistiques individuelles. **On ne suit pas les victoires.**
