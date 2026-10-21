@@ -238,6 +238,24 @@ de confirmation ». Décidé le 21 octobre 2026 :
 
 ---
 
+## #24 — Interrupteur « Compter les 15 » (Oui / Non) ❓ — ne pas appliquer tout de suite
+
+Demande du 21 octobre 2026 : un bouton à glissière pour compter les 15 ou non. Si « Non » est choisi, plus aucun
+message « 15 points ? ». **Patrice veut seulement le noter pour l'instant.**
+
+Questions à décider (plus tard) :
+
+- ❓ **A. Où ?** Proposition : dans « 🃏 Nouvelle partie », avec Automatique / Manuel et Parties 1-2-3 :
+  **Compter les 15 : [ Oui ⬤ ]**. Autres possibilités : sur la feuille de pointage (changeable en cours de partie),
+  ou une seule fois pour toutes dans les réglages.
+- ❓ **B. Valeur de départ ?** Proposition : **Oui** (comme aujourd'hui).
+- ❓ **C. Avec « Non » :** plus de question « 15 points ? », plus de 15 comptés automatiquement, plus de cases orange ;
+  la colonne Nb 15 de cette partie reste vide et ne compte pas dans les statistiques des 15.
+- ❓ **D. Les totaux impossibles** (case rouge) restent signalés même avec « Non » ? Proposition : oui (ça attrape
+  les fautes de frappe).
+
+---
+
 ## #17 — Victoires d'équipe : aucun changement ✔️
 
 Les victoires sont des victoires d'**équipe** (les équipes changent à chaque partie) ; les meilleurs joueurs se retrouvent déjà dans les statistiques individuelles. **On ne suit pas les victoires.**
