@@ -204,36 +204,36 @@ Décidé et fait le 10 octobre 2026 (à l'essai : « pas certain qu'on va le gar
 
 ---
 
-## #22 — Ajouter une partie jouée à une date antérieure 📝
+## #22 — Ajouter une partie jouée à une date antérieure ✅
 
 Demande du 21 octobre 2026 : pouvoir entrer une partie déjà jouée un autre jour, avec la même procédure qu'une
 partie normale (joueurs présents, équipes, nombre de parties, feuille de pointage).
 
 Décidé le 21 octobre 2026 :
 
-- 📝 **A. Où ?** Proposition : dans « 🃏 Nouvelle partie », une ligne **« Date : [ Aujourd'hui ▾ ] »** au-dessus de
+- ✅ **A. Où ?** Proposition : dans « 🃏 Nouvelle partie », une ligne **« Date : [ Aujourd'hui ▾ ] »** au-dessus de
   Automatique / Manuel. On touche la date pour choisir un autre jour (calendrier de la tablette). Elle revient à
   « Aujourd'hui » chaque fois qu'on arrive sur la page.
-- 📝 **B. Dates permises :** seulement aujourd'hui ou avant (pas de date dans le futur).
-- 📝 **C. Heure :** pour une date antérieure, une case « Heure » apparaît à côté de la date, avec **19 h 00** par
+- ✅ **B. Dates permises :** seulement aujourd'hui ou avant (pas de date dans le futur).
+- ✅ **C. Heure :** pour une date antérieure, une case « Heure » apparaît à côté de la date, avec **19 h 00** par
   défaut (modifiable).
-- 📝 **D. Présences :** les présences cochées sont enregistrées pour **cette date-là** (pas pour aujourd'hui).
-- 📝 **E. Saison :** la partie va dans la saison de **sa date** (par exemple une partie de septembre 2026 va dans la
+- ✅ **D. Présences :** les présences cochées sont enregistrées pour **cette date-là** (pas pour aujourd'hui).
+- ✅ **E. Saison :** la partie va dans la saison de **sa date** (par exemple une partie de septembre 2026 va dans la
   saison qui couvrait septembre, s'il y en a une ; sinon dans la première saison).
-- 📝 **F. Partie en cours :** « ▶ Continuer la partie en cours » (accueil) ne montre que les parties du jour. Une
+- ✅ **F. Partie en cours :** « ▶ Continuer la partie en cours » (accueil) ne montre que les parties du jour. Une
   partie d'une autre date, une fois commencée, se retrouve dans « 📋 Liste des parties » (rangée à sa date).
 
 ---
 
-## #23 — Confirmation avant de supprimer une partie 📝
+## #23 — Confirmation avant de supprimer une partie ✅
 
 Demande du 21 octobre 2026 : demander une confirmation **Oui / Non, « Non » par défaut**, avant de supprimer une
 partie (🗑️ Supprimer, en bas de la feuille de pointage). Exception voulue par Patrice à la règle « pas de questions
 de confirmation ». Décidé le 21 octobre 2026 :
 
-- 📝 **A. Le message :** « Supprimer la partie du 21/10/2026 (Lucie, Gérald… contre …) ? »
+- ✅ **A. Le message :** « Supprimer la partie du 21/10/2026 (Lucie, Gérald… contre …) ? »
   avec **[ Non ]** (choisi d'avance : Entrée ou Échap = Non) et **[ Oui, supprimer ]** en rouge.
-- 📝 **B.** Après un Oui, le message « Partie supprimée. — Annuler » reste quelques secondes, au cas où.
+- ✅ **B.** Après un Oui, le message « Partie supprimée. — Annuler » reste quelques secondes, au cas où.
 - 💡 **C et D** (même question pour « ↺ Recommencer » et pour 🗑️ effacer un joueur) : gardés dans `idées.md`.
 
 ---

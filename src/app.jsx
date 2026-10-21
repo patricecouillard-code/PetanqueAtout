@@ -625,13 +625,24 @@ function Joueurs({ data, setData, setPage, onGenerate, notify, undoable, seul = 
   const [newName, setNewName] = useState('');
   const [editId, setEditId] = useState(null);
   const [editName, setEditName] = useState('');
-  /* Présences du jour : reprises de l'enregistrement du jour s'il existe, sinon « présent » par défaut */
-  const [pres, setPres] = useState(() => {
-    const rec = data.presences?.[today] || {};
+  /* #22 — Date de la partie : aujourd'hui par défaut (à chaque visite de la page), ou un jour antérieur ;
+     pour un jour antérieur, l'heure est à 19 h 00 par défaut */
+  const [jour, setJour] = useState(today);
+  const [heure, setHeure] = useState('19:00');
+  /* Présences de la date choisie : reprises de l'enregistrement de cette date s'il existe, sinon « présent » */
+  const presDe = (date) => {
+    const rec = data.presences?.[date] || {};
     const p = {};
     data.joueurs.forEach(j => { p[j.id] = j.id in rec ? rec[j.id] : true; });
     return p;
-  });
+  };
+  const [pres, setPres] = useState(() => presDe(today));
+  const changerJour = (v) => {
+    if (!v) return;
+    if (v > today) { notify('La date ne peut pas être dans le futur.', { type: 'error' }); return; }
+    setJour(v);
+    setPres(presDe(v));
+  };
   /* #18 — Équipes automatiques (par défaut, à chaque visite de la page) ou manuelles */
   const [mode, setMode] = useState('auto');
   /* #19 — Nombre de parties de la séance : 2 par défaut, à chaque visite de la page */
@@ -651,7 +662,7 @@ function Joueurs({ data, setData, setPage, onGenerate, notify, undoable, seul = 
   }, [data.joueurs.length]);
 
   const storePresence = (id, v) => {
-    setData(d => ({ ...d, presences: { ...d.presences, [today]: { ...(d.presences?.[today] || {}), [id]: v } } }));
+    setData(d => ({ ...d, presences: { ...d.presences, [jour]: { ...(d.presences?.[jour] || {}), [id]: v } } }));
   };
 
   /* Vérifie un nom ; retourne un message d'erreur ou null */
@@ -751,7 +762,8 @@ function Joueurs({ data, setData, setPage, onGenerate, notify, undoable, seul = 
       t1 = sh.slice(0, mid); t2 = sh.slice(mid);
     }
     const e1 = orderTeam(t1, data.joueurs), e2 = orderTeam(t2, data.joueurs);
-    const np = { id: uid(), date: today, createdAt: new Date().toISOString(), equipe1: e1, equipe2: e2, scores: {} };
+    const createdAt = jour === today ? new Date().toISOString() : new Date(`${jour}T${heure || '19:00'}:00`).toISOString();
+    const np = { id: uid(), date: jour, createdAt, equipe1: e1, equipe2: e2, scores: {} };
     PKS.slice(0, nbParties).forEach(pk => {
       np.scores[pk] = {};
       [...e1, ...e2].forEach(id => { np.scores[pk][id] = EMPTY_SCORE(); });
@@ -761,7 +773,7 @@ function Joueurs({ data, setData, setPage, onGenerate, notify, undoable, seul = 
     const presRec = {};
     reels.forEach(j => { presRec[j.id] = !!pres[j.id]; });
 
-    setData(d => ({ ...d, parties: [...d.parties, np], presences: { ...(d.presences || {}), [today]: presRec } }));
+    setData(d => ({ ...d, parties: [...d.parties, np], presences: { ...(d.presences || {}), [jour]: presRec } }));
     onGenerate(np.id);
   };
 
@@ -848,6 +860,17 @@ function Joueurs({ data, setData, setPage, onGenerate, notify, undoable, seul = 
 
         <div className="flex flex-col gap-3">
           {!seul && <>
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+            <span className="text-gray-400 font-semibold whitespace-nowrap">Date :</span>
+            <input type="date" value={jour} max={today} onChange={e => changerJour(e.target.value)}
+              className="bg-main border border-gray-600 rounded-xl px-3 min-h-[44px] text-base focus:border-neon focus:outline-none" />
+            {jour === today ? <span className="text-sm text-gray-500">aujourd'hui</span> : <>
+              <span className="text-gray-400 font-semibold whitespace-nowrap">Heure :</span>
+              <input type="time" value={heure} onChange={e => setHeure(e.target.value)}
+                className="bg-main border border-gray-600 rounded-xl px-3 min-h-[44px] text-base focus:border-neon focus:outline-none" />
+              <button onClick={() => changerJour(today)} className="text-sm text-neon hover:underline whitespace-nowrap">↺ Aujourd'hui</button>
+            </>}
+          </div>
           <div className="flex rounded-xl border border-gray-600 overflow-hidden">
             {[['auto', '⚡ Automatique'], ['manuel', '✋ Manuel']].map(([m, lbl]) => (
               <button key={m} onClick={() => m === 'manuel' ? (mode !== 'manuel' && passerManuel()) : setMode('auto')}
@@ -1044,6 +1067,8 @@ function DayStats({ partie, e1, e2, joueurs }) {
 
 function Scoreboard({ data, setData, partie, setPage, onSaveQuit, onRestart, onDelete, notify }) {
   const [modal15, setModal15] = useState(null);
+  /* #23 — Confirmation avant de supprimer la partie (« Non » par défaut) */
+  const [confirmSup, setConfirmSup] = useState(false);
   /* Case de pointage active : affiche le bouton ± (claviers sans touche « − ») */
   const [activeKey, setActiveKey] = useState(null);
   const cellRefs = useRef({});
@@ -1303,7 +1328,7 @@ function Scoreboard({ data, setData, partie, setPage, onSaveQuit, onRestart, onD
           <Btn onClick={onSaveQuit} v="danger">💾 Sauvegarder et quitter</Btn>
           <div className="grid grid-cols-2 gap-3 mt-4">
             <Btn onClick={()=>onRestart(partie.id)} v="secondary" className="text-sm px-3">↺ Recommencer</Btn>
-            <Btn onClick={()=>onDelete(partie.id)} v="danger" className="text-sm px-3">🗑️ Supprimer</Btn>
+            <Btn onClick={()=>setConfirmSup(true)} v="danger" className="text-sm px-3">🗑️ Supprimer</Btn>
           </div>
         </div>
       </div>
@@ -1317,6 +1342,15 @@ function Scoreboard({ data, setData, partie, setPage, onSaveQuit, onRestart, onD
           ±
         </button>
       )}
+
+      <Modal open={confirmSup} title="🗑️ Supprimer la partie ?"
+        message={`Supprimer la partie du ${quand} (${nomsEquipe(data.joueurs, partie.equipe1)} contre ${nomsEquipe(data.joueurs, partie.equipe2)}) ?`}
+        initialFocus={0}
+        onEscape={() => setConfirmSup(false)}
+        buttons={[
+          { label: 'Non', onClick: () => setConfirmSup(false), v: 'secondary' },
+          { label: 'Oui, supprimer', onClick: () => { setConfirmSup(false); onDelete(partie.id); }, v: 'danger' },
+        ]} />
 
       {/* Modal Nb 15 (seulement si le total ne permet pas de trancher) : focus sur « Oui », Tab alterne Oui / Non, Entrée valide */}
       <Modal open={!!modal15} title="🏆 15 points ?"
