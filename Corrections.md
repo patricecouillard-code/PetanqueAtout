@@ -204,22 +204,23 @@ Décidé et fait le 10 octobre 2026 (à l'essai : « pas certain qu'on va le gar
 
 ---
 
-## #22 — Ajouter une partie jouée à une date antérieure ❓
+## #22 — Ajouter une partie jouée à une date antérieure 📝
 
 Demande du 21 octobre 2026 : pouvoir entrer une partie déjà jouée un autre jour, avec la même procédure qu'une
 partie normale (joueurs présents, équipes, nombre de parties, feuille de pointage).
 
-Questions à décider :
+Décidé le 21 octobre 2026 :
 
-- ❓ **A. Où ?** Proposition : dans « 🃏 Nouvelle partie », une ligne **« Date : [ Aujourd'hui ▾ ] »** au-dessus de
+- 📝 **A. Où ?** Proposition : dans « 🃏 Nouvelle partie », une ligne **« Date : [ Aujourd'hui ▾ ] »** au-dessus de
   Automatique / Manuel. On touche la date pour choisir un autre jour (calendrier de la tablette). Elle revient à
   « Aujourd'hui » chaque fois qu'on arrive sur la page.
-- ❓ **B. Dates permises :** seulement aujourd'hui ou avant (pas de date dans le futur).
-- ❓ **C. Heure :** pour une date antérieure, pas d'heure (la liste des parties montre seulement la date).
-- ❓ **D. Présences :** les présences cochées sont enregistrées pour **cette date-là** (pas pour aujourd'hui).
-- ❓ **E. Saison :** la partie va dans la saison de **sa date** (par exemple une partie de septembre 2026 va dans la
+- 📝 **B. Dates permises :** seulement aujourd'hui ou avant (pas de date dans le futur).
+- 📝 **C. Heure :** pour une date antérieure, une case « Heure » apparaît à côté de la date, avec **19 h 00** par
+  défaut (modifiable).
+- 📝 **D. Présences :** les présences cochées sont enregistrées pour **cette date-là** (pas pour aujourd'hui).
+- 📝 **E. Saison :** la partie va dans la saison de **sa date** (par exemple une partie de septembre 2026 va dans la
   saison qui couvrait septembre, s'il y en a une ; sinon dans la première saison).
-- ❓ **F. Partie en cours :** « ▶ Continuer la partie en cours » (accueil) ne montre que les parties du jour. Une
+- 📝 **F. Partie en cours :** « ▶ Continuer la partie en cours » (accueil) ne montre que les parties du jour. Une
   partie d'une autre date, une fois commencée, se retrouve dans « 📋 Liste des parties » (rangée à sa date).
 
 ---
