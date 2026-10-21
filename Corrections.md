@@ -224,21 +224,16 @@ Questions à décider :
 
 ---
 
-## #23 — Confirmation avant de supprimer une partie ❓
+## #23 — Confirmation avant de supprimer une partie 📝
 
 Demande du 21 octobre 2026 : demander une confirmation **Oui / Non, « Non » par défaut**, avant de supprimer une
 partie (🗑️ Supprimer, en bas de la feuille de pointage). Exception voulue par Patrice à la règle « pas de questions
-de confirmation ».
+de confirmation ». Décidé le 21 octobre 2026 :
 
-Questions à décider :
-
-- ❓ **A. Le message :** proposition — « Supprimer la partie du 21/10/2026 (Lucie, Gérald… contre …) ? »
+- 📝 **A. Le message :** « Supprimer la partie du 21/10/2026 (Lucie, Gérald… contre …) ? »
   avec **[ Non ]** (choisi d'avance : Entrée ou Échap = Non) et **[ Oui, supprimer ]** en rouge.
-- ❓ **B. Garder aussi « Annuler » après un Oui ?** Proposition : oui, le message « Partie supprimée. — Annuler »
-  reste quelques secondes, au cas où.
-- ❓ **C. Même chose pour « ↺ Recommencer »** (efface tous les pointages de la partie) ? Proposition : oui.
-- ❓ **D. Même chose pour 🗑️ effacer un joueur de la liste ?** Proposition : non (rien n'est perdu : le joueur
-  et ses statistiques restent, on peut le faire revenir).
+- 📝 **B.** Après un Oui, le message « Partie supprimée. — Annuler » reste quelques secondes, au cas où.
+- 💡 **C et D** (même question pour « ↺ Recommencer » et pour 🗑️ effacer un joueur) : gardés dans `idées.md`.
 
 ---
 

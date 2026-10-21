@@ -20,6 +20,10 @@ des statistiques, mais ses pointages restent dans les anciennes parties. On peut
 ### Supprimer les parties d'essai (proposée le 10 octobre 2026)
 Pouvoir supprimer d'un coup les parties d'essai (par exemple celles jouées par des joueurs d'essai).
 
+### Confirmation pour « Recommencer » et pour effacer un joueur (proposée le 21 octobre 2026)
+Comme pour la suppression d'une partie (#23) : une question Oui / Non, « Non » par défaut, avant
+« ↺ Recommencer » (efface tous les pointages de la partie) et avant 🗑️ effacer un joueur de la liste.
+
 ### Saisie des points en touchant les trous
 Au lieu de taper le total d'un joueur, on touche les trous où ses boules sont tombées (par exemple ♥, ♣, −5), avec un bouton « à côté » pour une boule ratée.
 - L'application calcule le total selon la manche (atout en double, Tout atout tout en double).
