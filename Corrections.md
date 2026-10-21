@@ -224,6 +224,24 @@ Questions à décider :
 
 ---
 
+## #23 — Confirmation avant de supprimer une partie ❓
+
+Demande du 21 octobre 2026 : demander une confirmation **Oui / Non, « Non » par défaut**, avant de supprimer une
+partie (🗑️ Supprimer, en bas de la feuille de pointage). Exception voulue par Patrice à la règle « pas de questions
+de confirmation ».
+
+Questions à décider :
+
+- ❓ **A. Le message :** proposition — « Supprimer la partie du 21/10/2026 (Lucie, Gérald… contre …) ? »
+  avec **[ Non ]** (choisi d'avance : Entrée ou Échap = Non) et **[ Oui, supprimer ]** en rouge.
+- ❓ **B. Garder aussi « Annuler » après un Oui ?** Proposition : oui, le message « Partie supprimée. — Annuler »
+  reste quelques secondes, au cas où.
+- ❓ **C. Même chose pour « ↺ Recommencer »** (efface tous les pointages de la partie) ? Proposition : oui.
+- ❓ **D. Même chose pour 🗑️ effacer un joueur de la liste ?** Proposition : non (rien n'est perdu : le joueur
+  et ses statistiques restent, on peut le faire revenir).
+
+---
+
 ## #17 — Victoires d'équipe : aucun changement ✔️
 
 Les victoires sont des victoires d'**équipe** (les équipes changent à chaque partie) ; les meilleurs joueurs se retrouvent déjà dans les statistiques individuelles. **On ne suit pas les victoires.**
