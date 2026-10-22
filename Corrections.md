@@ -271,6 +271,25 @@ téléphone refuse alors d'ouvrir le clavier. Correction : le curseur va à la c
 lui-même. Vérifié dans Chromium ; Patrice doit confirmer sur son téléphone.
 ---
 
+## #27 — Statistiques : trier en touchant l'en-tête d'une colonne ❓
+
+Demande du 22 octobre 2026 : dans les statistiques avancées, pouvoir trier un tableau en touchant l'en-tête
+d'une colonne.
+
+Questions à décider :
+
+- ❓ **A. Quels tableaux ?** Proposition : les trois classements — « 🥇 Meilleur pointage brut » (Joueur, Parties,
+  Nb 15, Total), « 🎯 Meilleur pointage par partie » (Joueur, Parties, Total, Moyenne) et « 🃏 Meilleur par manche »
+  (Joueur et chaque manche). Pas la « 🗓️ Fiche du joueur » (rangée par date).
+- ❓ **B. Sens du tri :** proposition — 1er toucher : du plus grand au plus petit (noms : de A à Z) ; 2e toucher sur
+  la même colonne : l'inverse. Une petite flèche ▼ / ▲ montre la colonne et le sens.
+- ❓ **C. Ordre de départ :** comme aujourd'hui (Total ou Moyenne, du plus grand au plus petit), chaque fois qu'on
+  ouvre les statistiques.
+- ❓ **D. Médailles 👑 🥈 🥉 :** proposition — elles restent aux vrais meneurs (classement par Total ou Moyenne),
+  même si on trie autrement.
+
+---
+
 ## #17 — Victoires d'équipe : aucun changement ✔️
 
 Les victoires sont des victoires d'**équipe** (les équipes changent à chaque partie) ; les meilleurs joueurs se retrouvent déjà dans les statistiques individuelles. **On ne suit pas les victoires.**
