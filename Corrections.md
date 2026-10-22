@@ -260,6 +260,15 @@ d'essence) se vide pendant les 7 secondes où l'on peut encore annuler.
 
 ---
 
+## #26 — Bug : le curseur perd sa place après la question « 15 points ? » ❓
+
+Signalé le 22 octobre 2026 : après avoir répondu à la question du 15, le curseur ne va pas à la case suivante.
+Pas reproduit dans Chromium (Entrée, Tab, touche « Suivant » simulée, réponse au toucher ou au clavier : le curseur
+va bien à la case suivante). Cause probable : le navigateur de la tablette (DuckDuckGo) n'accepte pas de déplacer le
+curseur « un instant après » le toucher du bouton. Détails demandés à Patrice.
+
+---
+
 ## #17 — Victoires d'équipe : aucun changement ✔️
 
 Les victoires sont des victoires d'**équipe** (les équipes changent à chaque partie) ; les meilleurs joueurs se retrouvent déjà dans les statistiques individuelles. **On ne suit pas les victoires.**
