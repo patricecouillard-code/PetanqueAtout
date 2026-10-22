@@ -260,13 +260,15 @@ d'essence) se vide pendant les 7 secondes où l'on peut encore annuler.
 
 ---
 
-## #26 — Bug : le curseur perd sa place après la question « 15 points ? » ❓
+## #26 — Bug : le curseur perd sa place après la question « 15 points ? » ✅ (à confirmer sur le téléphone)
 
-Signalé le 22 octobre 2026 : après avoir répondu à la question du 15, le curseur ne va pas à la case suivante.
-Pas reproduit dans Chromium (Entrée, Tab, touche « Suivant » simulée, réponse au toucher ou au clavier : le curseur
-va bien à la case suivante). Cause probable : le navigateur de la tablette (DuckDuckGo) n'accepte pas de déplacer le
-curseur « un instant après » le toucher du bouton. Détails demandés à Patrice.
+Signalé le 22 octobre 2026, **sur le téléphone**, avec Oui comme avec Non : après la réponse, le curseur disparaît
+(clavier fermé, aucune case active) ; il faut toucher la case suivante. Sans la question, la touche « Suivant »
+avance normalement.
 
+Cause : le curseur était envoyé à la case suivante « un instant après » le toucher du bouton ; le navigateur du
+téléphone refuse alors d'ouvrir le clavier. Correction : le curseur va à la case suivante pendant le toucher
+lui-même. Vérifié dans Chromium ; Patrice doit confirmer sur son téléphone.
 ---
 
 ## #17 — Victoires d'équipe : aucun changement ✔️

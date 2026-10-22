@@ -1282,12 +1282,12 @@ function Scoreboard({ data, setData, partie, setPage, onSaveQuit, onRestart, onD
     if (!m) return;
     /* Un seul trou à 15 : au plus un 15 par joueur et par manche, jamais compté deux fois */
     set15(m.pk, m.id, m.suit, confirmed);
+    /* Reprise de la séquence normale : le curseur va à la case suivante tout de suite, pendant le toucher
+       du bouton Oui / Non (#26). Sur téléphone, le navigateur n'ouvre le clavier que si la case reçoit
+       le curseur pendant le toucher lui-même, pas « un instant après ». */
+    const cible = m.next || (focusInfo.current && focusInfo.current.key !== m.key ? focusInfo.current.key : null);
+    if (cible) focusCell(cible);
     setModal15(null);
-    /* Reprise de la séquence normale après la fermeture du modal */
-    setTimeout(() => {
-      if (m.next) focusCell(m.next);
-      else if (focusInfo.current && focusInfo.current.key !== m.key) focusCell(focusInfo.current.key);
-    }, 0);
   };
 
   const quand = `${fmtDate(partie.date)}${partie.createdAt ? ` — ${fmtHeure(partie.createdAt)}` : ''}`;
