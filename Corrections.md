@@ -271,21 +271,20 @@ téléphone refuse alors d'ouvrir le clavier. Correction : le curseur va à la c
 lui-même. Vérifié dans Chromium ; Patrice doit confirmer sur son téléphone.
 ---
 
-## #27 — Statistiques du jour : trier en touchant l'en-tête d'une colonne ❓
+## #27 — Statistiques du jour : trier en touchant l'en-tête d'une colonne 📝
 
 Demande du 22 octobre 2026 (précisée : il s'agit des **statistiques du jour**, sous la feuille de pointage —
 « 📊 Statistiques du … », colonnes Joueur, ♠ ♣ ♦ ♥ ✦, Total, Nb 15).
 
-Questions à décider :
+Décidé le 22 octobre 2026 :
 
-- ❓ **A. Sens du tri :** proposition — 1er toucher : du plus grand au plus petit (Joueur : de A à Z) ; 2e toucher
+- 📝 **A. Sens du tri :** proposition — 1er toucher : du plus grand au plus petit (Joueur : de A à Z) ; 2e toucher
   sur la même colonne : l'inverse. Une petite flèche ▼ / ▲ montre la colonne et le sens.
-- ❓ **B. Ordre de départ :** comme aujourd'hui (Équipe 1 puis Équipe 2, dans l'ordre de jeu), chaque fois qu'on
+- 📝 **B. Ordre de départ :** comme aujourd'hui (Équipe 1 puis Équipe 2, dans l'ordre de jeu), chaque fois qu'on
   ouvre la feuille. Un 3e toucher sur la même colonne revient à cet ordre.
-- ❓ **C.** Le point de couleur de l'équipe (bleu / jaune) reste devant chaque nom, pour savoir qui est dans quelle
+- 📝 **C.** Le point de couleur de l'équipe (bleu / jaune) reste devant chaque nom, pour savoir qui est dans quelle
   équipe une fois trié.
-- ❓ **D. Les classements des statistiques avancées** (Meilleur pointage brut, par partie, par manche) : même tri
-  aussi, ou pas pour l'instant ?
+- 💡 **D.** Pas pour l'instant pour les classements des statistiques avancées (gardé dans `idées.md`).
 ---
 
 ## #17 — Victoires d'équipe : aucun changement ✔️

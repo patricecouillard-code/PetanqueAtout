@@ -24,6 +24,10 @@ Pouvoir supprimer d'un coup les parties d'essai (par exemple celles jouées par 
 Comme pour la suppression d'une partie (#23) : une question Oui / Non, « Non » par défaut, avant
 « ↺ Recommencer » (efface tous les pointages de la partie) et avant 🗑️ effacer un joueur de la liste.
 
+### Trier les classements des statistiques avancées (proposée le 22 octobre 2026)
+Comme pour les statistiques du jour (#27) : trier « Meilleur pointage brut », « Meilleur pointage par partie » et
+« Meilleur par manche » en touchant l'en-tête d'une colonne. Les médailles restent aux vrais meneurs.
+
 ### Saisie des points en touchant les trous
 Au lieu de taper le total d'un joueur, on touche les trous où ses boules sont tombées (par exemple ♥, ♣, −5), avec un bouton « à côté » pour une boule ratée.
 - L'application calcule le total selon la manche (atout en double, Tout atout tout en double).
