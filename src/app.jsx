@@ -567,10 +567,10 @@ function Btn({ onClick, children, v='primary', className='' }) {
 
 /* En-tête de manche : libellé complet, nom seul (tablette) ou symbole seul (petit écran),
    pour que les en-têtes tiennent toujours sur une seule ligne */
-function SuitTh({ s, className='' }) {
+function SuitTh({ s, className='', onClick, fleche }) {
   return (
-    <th className={`text-center ${s.color} ${className}`} title={s.label}>
-      <span className="lbl-long">{s.label}</span><span className="lbl-mid">{s.mid}</span><span className="lbl-short">{s.sym}</span>
+    <th className={`text-center ${s.color} ${className}`} title={s.label} onClick={onClick}>
+      <span className="lbl-long">{s.label}</span><span className="lbl-mid">{s.mid}</span><span className="lbl-short">{s.sym}</span>{fleche}
     </th>
   );
 }
@@ -1014,7 +1014,17 @@ function PartieTable({ title, pKey, partie, e1, e2, joueurs, onChange, cellProps
    ═══════════════════════════════════════════════ */
 
 function DayStats({ partie, e1, e2, joueurs }) {
-  const ids = [...e1, ...e2];
+  /* #27 — Tri en touchant l'en-tête : 1er toucher du plus grand au plus petit (Joueur : A à Z),
+     2e toucher l'inverse, 3e toucher retour à l'ordre de départ (Équipe 1 puis Équipe 2) */
+  const [tri, setTri] = useState(null);
+  const trier = (col) => setTri(t => {
+    const depart = col === 'nom' ? 1 : -1;
+    if (!t || t.col !== col) return { col, dir: depart };
+    return t.dir === depart ? { col, dir: -depart } : null;
+  });
+  const fleche = (col) => tri?.col === col
+    ? <span className="text-[0.7em] ml-0.5 align-middle">{(col === 'nom' ? tri.dir === 1 : tri.dir === -1) ? '▼' : '▲'}</span> : null;
+  const thTri = 'cursor-pointer select-none hover:brightness-125';
 
   const ps = (id) => {
     const ss = pksOf(partie).map(pk => partie.scores[pk]?.[id] || {});
@@ -1024,6 +1034,12 @@ function DayStats({ partie, e1, e2, joueurs }) {
     r.nb15 = ss.reduce((a, x) => a + (x.nb15||0), 0);
     return r;
   };
+
+  const rows = [...e1, ...e2].map((id, ordre) => ({ id, ordre, s: ps(id), nom: nomJoueur(joueurs, id) }));
+  if (tri) rows.sort((a, b) => {
+    const c = tri.col === 'nom' ? a.nom.localeCompare(b.nom, 'fr', { sensitivity: 'base' }) : (a.s[tri.col] - b.s[tri.col]);
+    return c * tri.dir || a.ordre - b.ordre;
+  });
 
   return (
     <div className="bg-card rounded-2xl border border-accent/50 overflow-hidden">
@@ -1036,16 +1052,15 @@ function DayStats({ partie, e1, e2, joueurs }) {
           </colgroup>
           <thead>
             <tr className="bg-accent/60">
-              <th className="text-left text-gray-400">Joueur</th>
-              {SUITS.map(s=><SuitTh key={s.key} s={s} />)}
-              <th className="text-center text-neon bg-calc/40">Total</th>
-              <th className="text-center text-amber-400"><Lbl long="Nb 15" short="15" /></th>
+              <th className={`text-left text-gray-400 ${thTri}`} onClick={() => trier('nom')}>Joueur{fleche('nom')}</th>
+              {SUITS.map(s=><SuitTh key={s.key} s={s} className={thTri} onClick={() => trier(s.key)} fleche={fleche(s.key)} />)}
+              <th className={`text-center text-neon bg-calc/40 ${thTri}`} onClick={() => trier('total')}>Total{fleche('total')}</th>
+              <th className={`text-center text-amber-400 ${thTri}`} onClick={() => trier('nb15')}><Lbl long="Nb 15" short="15" />{fleche('nb15')}</th>
             </tr>
           </thead>
           <tbody>
-            {ids.map((id,i)=>{
+            {rows.map(({ id, s }, i)=>{
               const j=joueurs.find(x=>x.id===id);
-              const s=ps(id);
               const isE1 = e1.includes(id);
               return (
                 <tr key={id} className={`border-b border-gray-700/40 ${i%2===0?'bg-card':'bg-main/40'}`}>
