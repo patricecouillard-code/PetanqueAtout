@@ -271,23 +271,21 @@ téléphone refuse alors d'ouvrir le clavier. Correction : le curseur va à la c
 lui-même. Vérifié dans Chromium ; Patrice doit confirmer sur son téléphone.
 ---
 
-## #27 — Statistiques : trier en touchant l'en-tête d'une colonne ❓
+## #27 — Statistiques du jour : trier en touchant l'en-tête d'une colonne ❓
 
-Demande du 22 octobre 2026 : dans les statistiques avancées, pouvoir trier un tableau en touchant l'en-tête
-d'une colonne.
+Demande du 22 octobre 2026 (précisée : il s'agit des **statistiques du jour**, sous la feuille de pointage —
+« 📊 Statistiques du … », colonnes Joueur, ♠ ♣ ♦ ♥ ✦, Total, Nb 15).
 
 Questions à décider :
 
-- ❓ **A. Quels tableaux ?** Proposition : les trois classements — « 🥇 Meilleur pointage brut » (Joueur, Parties,
-  Nb 15, Total), « 🎯 Meilleur pointage par partie » (Joueur, Parties, Total, Moyenne) et « 🃏 Meilleur par manche »
-  (Joueur et chaque manche). Pas la « 🗓️ Fiche du joueur » (rangée par date).
-- ❓ **B. Sens du tri :** proposition — 1er toucher : du plus grand au plus petit (noms : de A à Z) ; 2e toucher sur
-  la même colonne : l'inverse. Une petite flèche ▼ / ▲ montre la colonne et le sens.
-- ❓ **C. Ordre de départ :** comme aujourd'hui (Total ou Moyenne, du plus grand au plus petit), chaque fois qu'on
-  ouvre les statistiques.
-- ❓ **D. Médailles 👑 🥈 🥉 :** proposition — elles restent aux vrais meneurs (classement par Total ou Moyenne),
-  même si on trie autrement.
-
+- ❓ **A. Sens du tri :** proposition — 1er toucher : du plus grand au plus petit (Joueur : de A à Z) ; 2e toucher
+  sur la même colonne : l'inverse. Une petite flèche ▼ / ▲ montre la colonne et le sens.
+- ❓ **B. Ordre de départ :** comme aujourd'hui (Équipe 1 puis Équipe 2, dans l'ordre de jeu), chaque fois qu'on
+  ouvre la feuille. Un 3e toucher sur la même colonne revient à cet ordre.
+- ❓ **C.** Le point de couleur de l'équipe (bleu / jaune) reste devant chaque nom, pour savoir qui est dans quelle
+  équipe une fois trié.
+- ❓ **D. Les classements des statistiques avancées** (Meilleur pointage brut, par partie, par manche) : même tri
+  aussi, ou pas pour l'instant ?
 ---
 
 ## #17 — Victoires d'équipe : aucun changement ✔️
