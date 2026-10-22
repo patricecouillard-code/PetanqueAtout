@@ -28,6 +28,12 @@ Comme pour la suppression d'une partie (#23) : une question Oui / Non, « Non »
 Comme pour les statistiques du jour (#27) : trier « Meilleur pointage brut », « Meilleur pointage par partie » et
 « Meilleur par manche » en touchant l'en-tête d'une colonne. Les médailles restent aux vrais meneurs.
 
+### Repérer les parties en double (proposée le 23 octobre 2026)
+Si la même soirée a été entrée sur deux appareils (deux « Générer les équipes »), la sauvegarde GitHub garde les deux
+parties. L'application pourrait repérer deux parties qui se ressemblent (même date, mêmes joueurs dans les mêmes
+équipes) et le signaler, par exemple avec un badge « ⚠️ Doublon possible » dans la « Liste des parties », pour
+qu'on supprime celle en trop (les statistiques se recalculent toutes seules).
+
 ### Saisie des points en touchant les trous
 Au lieu de taper le total d'un joueur, on touche les trous où ses boules sont tombées (par exemple ♥, ♣, −5), avec un bouton « à côté » pour une boule ratée.
 - L'application calcule le total selon la manche (atout en double, Tout atout tout en double).
