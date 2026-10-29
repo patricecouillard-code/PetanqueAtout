@@ -266,8 +266,8 @@ function ensureSaisons(data) {
 
 function migrateData(d) {
   const data = { joueurs: d.joueurs || [], parties: d.parties || [], presences: d.presences || {}, saisons: d.saisons || [], supprimees: d.supprimees || [],
-    /* #24 — Réglages du jeu : voyagent avec les données (sauvegarde GitHub) */
-    reglages: { ...(d.reglages || {}), compter15: d.reglages?.compter15 !== false } };
+    /* #24 — Réglages du jeu : voyagent avec les données (sauvegarde GitHub) ; 15 non comptés par défaut */
+    reglages: { ...(d.reglages || {}), compter15: d.reglages?.compter15 === true } };
   return ensureSaisons(ensureFantome(recoverPlayers(purgePlayers(migrateScores(data)))));
 }
 
@@ -1095,7 +1095,7 @@ function DayStats({ partie, e1, e2, joueurs }) {
 
 function Scoreboard({ data, setData, partie, setPage, onSaveQuit, onRestart, onDelete, notify }) {
   const [modal15, setModal15] = useState(null);
-  const compter15 = data.reglages?.compter15 !== false;
+  const compter15 = data.reglages?.compter15 === true;
   /* #23 — Confirmation avant de supprimer la partie (« Non » par défaut) */
   const [confirmSup, setConfirmSup] = useState(false);
   /* Case de pointage active : affiche le bouton ± (claviers sans touche « − ») */
@@ -1797,7 +1797,7 @@ function Stats({ data, setData, setPage, enCours, openPartie, onSaveQuit, undoab
    ═══════════════════════════════════════════════ */
 
 function Reglages({ data, setData, setPage, onSaveNow, notify, ghStatus }) {
-  const compter15 = data.reglages?.compter15 !== false;
+  const compter15 = data.reglages?.compter15 === true;
   const basculer15 = () => {
     const v = !compter15;
     setData(d => ({ ...d, reglages: { ...(d.reglages || {}), compter15: v, modifie: new Date().toISOString() } }));

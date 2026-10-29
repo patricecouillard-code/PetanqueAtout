@@ -253,7 +253,7 @@ message « 15 points ? ». Fait le 29 octobre 2026.
     recalcule pas les pointages entrés pendant « Non ».
   - ✅ **A3. Rappel :** avec « Non », une petite mention « 15 non comptés » en haut de la feuille de
     pointage, pour ne pas l'oublier.
-- ✅ **B. Valeur de départ : Oui** (comme aujourd'hui).
+- ✅ **B. Valeur de départ : Non** (changé le 29 octobre 2026 ; d'abord « Oui »). Si le réglage n'a jamais été touché, les 15 ne sont pas comptés.
 - ✅ **C. Avec « Non » :** les pointages et les totaux se calculent comme maintenant, mais plus de question
   « 15 points ? », plus de 15 comptés (Nb 15), plus de cases orange.
 - ✅ **D.** Les totaux impossibles (case rouge) restent signalés même avec « Non » (ça attrape les fautes de frappe).
