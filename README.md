@@ -37,7 +37,7 @@ se fait à la prochaine ouverture de l'application avec Internet.
 Préparation, une fois par appareil : créer un jeton sur github.com (photo → Settings → Developer settings →
 Personal access tokens → **Fine-grained tokens** → *Generate new token*), limité au dépôt
 **PetanqueAtout-Data**, avec **Contents : Read and write**. Le coller dans l'application :
-**⚙️ Sauvegarde GitHub** (en bas de l'accueil) → *Tester la connexion*.
+**⚙️ Réglages** (partie « Sauvegarde GitHub ») (en bas de l'accueil) → *Tester la connexion*.
 
 ### Plusieurs appareils (un ami, la tablette…)
 
@@ -50,7 +50,7 @@ récupère d'abord ce qui s'y trouve et le **fusionne** avec ses propres donnée
 
 **Pour un ami** : il installe l'application depuis l'adresse ci-dessus. Patrice crée pour lui un **jeton séparé**
 (même marche à suivre, nommé par exemple `PetanqueAtout-ami`, limité à `PetanqueAtout-Data`) et le lui transmet
-en privé ; l'ami le colle dans **⚙️ Sauvegarde GitHub**. Patrice peut l'annuler à tout moment sans toucher au sien.
+en privé ; l'ami le colle dans **⚙️ Réglages** (partie « Sauvegarde GitHub »). Patrice peut l'annuler à tout moment sans toucher au sien.
 L'ami n'a pas besoin de compte GitHub.
 
 ## Modifier l'application

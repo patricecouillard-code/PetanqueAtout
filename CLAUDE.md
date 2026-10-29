@@ -12,7 +12,7 @@ Utilisée surtout sur **tablette**, parfois sur téléphone (en paysage), par Pa
 - Dans l'application : **pas de questions de confirmation**. On utilise plutôt un message
   « … — Annuler » pendant quelques secondes.
 - **Ne jamais demander ni accepter le jeton GitHub** dans la conversation : Patrice le colle lui-même
-  dans l'application (⚙️ Sauvegarde GitHub).
+  dans l'application (⚙️ Réglages → Sauvegarde GitHub).
 - Ne rien supprimer des données des joueurs sans décision explicite.
 
 ## Fichiers de référence (à lire avant de travailler)
@@ -47,6 +47,8 @@ Utilisée surtout sur **tablette**, parfois sur téléphone (en paysage), par Pa
   dédoublonnés par nom, parties par `modifie` le plus récent, parties supprimées dans `supprimees`.
 - **#20** : `purgePlayers` (dans `migrateData`) supprime à chaque ouverture les joueurs nommés 1 à 7 et w, avec leurs
   pointages et présences (décision de Patrice du 10 octobre 2026). Patrice a exporté ses données juste avant.
+- **#24** : `data.reglages.compter15` (voyage avec les données ; dans `mergeData`, le plus récent `reglages.modifie`
+  l'emporte). Les cases entrées avec « Non » sont listées dans `sans15Fields` : `migrateScores` n'y remet jamais de 15.
 - Toute modification du format des données doit passer par la migration (`migrateScores`) pour que les
   anciennes données restent valides.
 
@@ -56,6 +58,7 @@ Utilisée surtout sur **tablette**, parfois sur téléphone (en paysage), par Pa
   « on verra à l'usage ». Attendre son retour.
 - **#22** (partie à une date antérieure, heure 19 h 00 par défaut) et **#23** (confirmation Oui / Non, « Non » par
   défaut, avant de supprimer une partie — exception voulue à « pas de questions de confirmation ») publiés le 21 octobre 2026.
+- **#24** (interrupteur « Compter les 15 » dans ⚙️ Réglages) publié le 29 octobre 2026.
 - **#21** (bouton « 👥 Joueurs » sur l'accueil) publié le 10 octobre 2026, à l'essai : « pas certain qu'on va le garder ».
 - Idées aimées mais **pas tout de suite** (`idées.md`) : équipes équilibrées, changer les coéquipiers, saisie en
   touchant les trous, saisie joueur par joueur, classement « tous les temps ».

@@ -204,6 +204,8 @@ function migrateScores(data) {
       SUITS.forEach(su => {
         const kind = quinzeKind(su.key, s[su.key]);
         if (s[su.key] == null || kind === 'non') s.highlight15Fields = s.highlight15Fields.filter(k => k !== su.key);
+        /* #24 — case entrée avec « Compter les 15 : Non » : jamais de 15 */
+        else if ((s.sans15Fields || []).includes(su.key)) s.highlight15Fields = s.highlight15Fields.filter(k => k !== su.key);
         else if (kind === 'oui' && !s.highlight15Fields.includes(su.key)) s.highlight15Fields.push(su.key);
       });
       syncNb15(s);
@@ -263,7 +265,9 @@ function ensureSaisons(data) {
 }
 
 function migrateData(d) {
-  const data = { joueurs: d.joueurs || [], parties: d.parties || [], presences: d.presences || {}, saisons: d.saisons || [], supprimees: d.supprimees || [] };
+  const data = { joueurs: d.joueurs || [], parties: d.parties || [], presences: d.presences || {}, saisons: d.saisons || [], supprimees: d.supprimees || [],
+    /* #24 — Réglages du jeu : voyagent avec les données (sauvegarde GitHub) */
+    reglages: { ...(d.reglages || {}), compter15: d.reglages?.compter15 !== false } };
   return ensureSaisons(ensureFantome(recoverPlayers(purgePlayers(migrateScores(data)))));
 }
 
@@ -330,10 +334,14 @@ function mergeData(localIn, remoteIn) {
     else if (Date.parse(s.debut) < Date.parse(same.debut)) same.debut = s.debut;
   });
 
+  /* Réglages : le plus récemment changé l'emporte */
+  const rt = (r) => Date.parse(r?.modifie || '') || 0;
+  const reglages = rt(L.reglages) >= rt(R.reglages) ? L.reglages : R.reglages;
+
   return migrateData({
     joueurs,
     parties: [...parties.values()].filter(p => !supprimees.includes(p.id)),
-    presences, saisons, supprimees,
+    presences, saisons, supprimees, reglages,
   });
 }
 
@@ -612,7 +620,7 @@ function Accueil({ data, setPage, enCours, openPartie, onSaveQuit, ghStatus }) {
         <Btn onClick={() => setPage('statistiques')} v="secondary">📊 Statistiques</Btn>
         <Btn onClick={onSaveQuit} v="danger">💾 Sauvegarder et quitter</Btn>
         <button onClick={() => setPage('reglages')} className="text-sm text-gray-500 hover:text-neon mt-1">
-          ⚙️ Sauvegarde GitHub {ghStatus && <span className="text-gray-600">· {ghStatus}</span>}
+          ⚙️ Réglages {ghStatus && <span className="text-gray-600">· sauvegarde {ghStatus}</span>}
         </button>
       </div>
     </div>
@@ -1087,6 +1095,7 @@ function DayStats({ partie, e1, e2, joueurs }) {
 
 function Scoreboard({ data, setData, partie, setPage, onSaveQuit, onRestart, onDelete, notify }) {
   const [modal15, setModal15] = useState(null);
+  const compter15 = data.reglages?.compter15 !== false;
   /* #23 — Confirmation avant de supprimer la partie (« Non » par défaut) */
   const [confirmSup, setConfirmSup] = useState(false);
   /* Case de pointage active : affiche le bouton ± (claviers sans touche « − ») */
@@ -1157,7 +1166,8 @@ function Scoreboard({ data, setData, partie, setPage, onSaveQuit, onRestart, onD
   };
 
   /* Marque (ou retire) le 15 d'une manche pour un joueur ; Nb 15 est recalculé */
-  const set15 = (pk, id, suit, on) => {
+  /* sans : true → case entrée avec « Compter les 15 : Non » (#24) ; false → entrée normale */
+  const set15 = (pk, id, suit, on, sans) => {
     setData(prev => {
       const nd = JSON.parse(JSON.stringify(prev));
       const p = nd.parties.find(x => x.id === partie.id);
@@ -1168,6 +1178,11 @@ function Scoreboard({ data, setData, partie, setPage, onSaveQuit, onRestart, onD
       const hl = new Set(s.highlight15Fields || []);
       if (on) hl.add(suit); else hl.delete(suit);
       s.highlight15Fields = [...hl];
+      if (sans !== undefined) {
+        const sf = new Set(s.sans15Fields || []);
+        if (sans) sf.add(suit); else sf.delete(suit);
+        s.sans15Fields = [...sf];
+      }
       syncNb15(s);
       p.modifie = new Date().toISOString();
       return nd;
@@ -1194,14 +1209,17 @@ function Scoreboard({ data, setData, partie, setPage, onSaveQuit, onRestart, onD
     }
     if (fi && fi.key === key) fi.val = val;
 
-    if (changed) {
+    if (changed && !compter15) {
+      /* « Compter les 15 : Non » : pas de question, pas de 15, pas de case orange */
+      set15(pk, id, suit, false, true);
+    } else if (changed) {
       const kind = quinzeKind(suit, val);
       if (kind === 'peut-etre') {
         const su = SUITS.find(s => s.key === suit);
         setModal15({ key, pk, id, suit, val, next, nom: nomJoueur(data.joueurs, id), suitLabel: su?.label || suit, pLabel: PLABEL[pk] });
         return;
       }
-      set15(pk, id, suit, kind === 'oui');
+      set15(pk, id, suit, kind === 'oui', false);
     }
     if (next) focusCell(next);
   };
@@ -1296,7 +1314,7 @@ function Scoreboard({ data, setData, partie, setPage, onSaveQuit, onRestart, onD
     const m = modal15;
     if (!m) return;
     /* Un seul trou à 15 : au plus un 15 par joueur et par manche, jamais compté deux fois */
-    set15(m.pk, m.id, m.suit, confirmed);
+    set15(m.pk, m.id, m.suit, confirmed, false);
     /* Reprise de la séquence normale : le curseur va à la case suivante tout de suite, pendant le toucher
        du bouton Oui / Non (#26). Sur téléphone, le navigateur n'ouvre le clavier que si la case reçoit
        le curseur pendant le toucher lui-même, pas « un instant après ». */
@@ -1314,6 +1332,11 @@ function Scoreboard({ data, setData, partie, setPage, onSaveQuit, onRestart, onD
         <h2 className="text-xl md:text-2xl font-bold text-center text-neon mb-6">
           🃏 Parties du {quand}
         </h2>
+        {!compter15 && (
+          <p className="text-center -mt-4 mb-6">
+            <span className="inline-block text-sm text-amber-300 border border-amber-500/40 rounded-full px-3 py-1">15 non comptés (⚙️ Réglages)</span>
+          </p>
+        )}
 
         <div className={`grid grid-cols-1 ${pks.length > 1 ? 'xl:grid-cols-2' : 'max-w-4xl mx-auto'} gap-4 mb-4`}>
           {pks.map(pk => (
@@ -1773,7 +1796,13 @@ function Stats({ data, setData, setPage, enCours, openPartie, onSaveQuit, undoab
    PAGE : RÉGLAGES DE LA SAUVEGARDE GITHUB
    ═══════════════════════════════════════════════ */
 
-function Reglages({ setPage, onSaveNow, notify, ghStatus }) {
+function Reglages({ data, setData, setPage, onSaveNow, notify, ghStatus }) {
+  const compter15 = data.reglages?.compter15 !== false;
+  const basculer15 = () => {
+    const v = !compter15;
+    setData(d => ({ ...d, reglages: { ...(d.reglages || {}), compter15: v, modifie: new Date().toISOString() } }));
+    notify(v ? 'Les 15 sont comptés.' : 'Les 15 ne sont plus comptés pour les nouveaux pointages.');
+  };
   const [cfg, setCfg] = useState(() => ghConfig());
   const [show, setShow] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -1792,8 +1821,27 @@ function Reglages({ setPage, onSaveNow, notify, ghStatus }) {
   return (
     <div className="min-h-screen p-4 pb-8 anim-fade">
       <div className="max-w-lg mx-auto">
-        <h2 className="text-2xl font-bold text-neon mb-2 text-center">⚙️ Sauvegarde GitHub</h2>
-        <p className="text-gray-400 text-center text-sm mb-6">
+        <h2 className="text-2xl font-bold text-neon mb-6 text-center">⚙️ Réglages</h2>
+
+        <h3 className="text-lg font-bold text-gray-200 mb-2">🎯 Jeu</h3>
+        <div className="bg-card rounded-2xl border border-accent/50 p-4 mb-8">
+          <div className="flex items-center gap-4">
+            <span className="flex-1 font-semibold text-gray-100">Compter les 15</span>
+            <span className={`text-sm font-bold ${compter15 ? 'text-neon' : 'text-gray-400'}`}>{compter15 ? 'Oui' : 'Non'}</span>
+            <button role="switch" aria-checked={compter15} aria-label="Compter les 15" onClick={basculer15}
+              className={`relative w-16 h-9 rounded-full transition-colors ${compter15 ? 'bg-neon' : 'bg-gray-600'}`}>
+              <span className={`absolute top-1 left-1 w-7 h-7 rounded-full bg-white shadow transition-transform ${compter15 ? 'translate-x-7' : ''}`} />
+            </button>
+          </div>
+          <p className="text-xs text-gray-500 leading-relaxed mt-3">
+            Avec « Non » : plus de question « 15 points ? », plus de 15 comptés ni de cases orange pour les nouveaux
+            pointages. Les 15 déjà comptés restent. Les totaux impossibles restent en rouge. Ce réglage est partagé avec
+            les autres appareils par la sauvegarde GitHub.
+          </p>
+        </div>
+
+        <h3 className="text-lg font-bold text-gray-200 mb-2">☁️ Sauvegarde GitHub</h3>
+        <p className="text-gray-400 text-sm mb-4">
           « Sauvegarder et quitter » envoie toutes les données dans le fichier partagé de votre dépôt privé. Les parties saisies sur les autres appareils (un ami, la tablette…) sont ajoutées automatiquement, sans rien écraser.
           {ghStatus && <><br />{ghStatus}</>}
         </p>
@@ -1986,7 +2034,7 @@ function App() {
       content = <Stats data={data} setData={setData} setPage={setPage} enCours={enCours} openPartie={openPartie}
         onSaveQuit={onSaveQuit} undoable={undoable} notify={notify} />; break;
     case 'reglages':
-      content = <Reglages setPage={setPage} onSaveNow={onSaveNow} notify={notify} ghStatus={ghStatus} />; break;
+      content = <Reglages data={data} setData={setData} setPage={setPage} onSaveNow={onSaveNow} notify={notify} ghStatus={ghStatus} />; break;
     default:
       content = <Accueil data={data} setPage={setPage} enCours={enCours} openPartie={openPartie} onSaveQuit={onSaveQuit} ghStatus={ghStatus} />;
   }

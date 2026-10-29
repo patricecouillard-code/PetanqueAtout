@@ -1,6 +1,6 @@
 /* Service worker : garde l'application en mémoire pour qu'elle fonctionne sans Internet.
    Fichier généré par build.mjs : la version change à chaque préparation. */
-const VERSION = '1ca1256eba';
+const VERSION = '545fa19f83';
 const CACHE = `petanque-atout-${VERSION}`;
 const FILES = [
   "./",
