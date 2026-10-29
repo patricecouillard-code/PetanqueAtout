@@ -238,20 +238,20 @@ de confirmation ». Décidé le 21 octobre 2026 :
 
 ---
 
-## #24 — Interrupteur « Compter les 15 » (Oui / Non) ❓ — ne pas appliquer tout de suite
+## #24 — Interrupteur « Compter les 15 » (Oui / Non) 📝 — attendre « vas-y »
 
 Demande du 21 octobre 2026 : un bouton à glissière pour compter les 15 ou non. Si « Non » est choisi, plus aucun
 message « 15 points ? ». **Patrice veut seulement le noter pour l'instant.**
 
-- ❓ **A. Où ?** Patrice penche pour **les réglages** (29 octobre 2026). Proposition détaillée :
+- 📝 **A. Où ? Dans les réglages** (décidé le 29 octobre 2026) :
   - Sur l'accueil, le lien « ⚙️ Sauvegarde GitHub » devient **« ⚙️ Réglages »**. La page a deux parties :
     **Jeu** (en haut) avec l'interrupteur **Compter les 15 : [ Oui ⬤ ]**, puis **Sauvegarde GitHub** (comme aujourd'hui).
-  - ❓ **A1. Pour qui ?** Proposition : le réglage **voyage avec les données** (sauvegarde GitHub) : Patrice et son ami
-    ont toujours le même réglage. Autre possibilité : chaque appareil a son propre réglage.
-  - ❓ **A2. Anciennes parties :** proposition — le réglage agit **sur la saisie** : avec « Non », les nouveaux
+  - 📝 **A1.** Le réglage **voyage avec les données** (sauvegarde GitHub) : Patrice et son ami
+    ont toujours le même réglage.
+  - 📝 **A2. Anciennes parties :** le réglage agit **sur la saisie** : avec « Non », les nouveaux
     pointages ne comptent plus de 15 ; les 15 déjà comptés restent (statistiques inchangées). Remettre « Oui » ne
     recalcule pas les pointages entrés pendant « Non ».
-  - ❓ **A3. Rappel :** proposition — avec « Non », une petite mention « 15 non comptés » en haut de la feuille de
+  - 📝 **A3. Rappel :** avec « Non », une petite mention « 15 non comptés » en haut de la feuille de
     pointage, pour ne pas l'oublier.
 - 📝 **B. Valeur de départ : Oui** (comme aujourd'hui).
 - 📝 **C. Avec « Non » :** les pointages et les totaux se calculent comme maintenant, mais plus de question
