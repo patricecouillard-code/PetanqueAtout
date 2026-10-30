@@ -47,6 +47,9 @@ Utilisée surtout sur **tablette**, parfois sur téléphone (en paysage), par Pa
   dédoublonnés par nom, parties par `modifie` le plus récent, parties supprimées dans `supprimees`.
 - **#20** : `purgePlayers` (dans `migrateData`) supprime à chaque ouverture les joueurs nommés 1 à 7 et w, avec leurs
   pointages et présences (décision de Patrice du 10 octobre 2026). Patrice a exporté ses données juste avant.
+- **#28** : `menage28` (dans `migrateData`) : ménage unique du 30 octobre 2026 — 10 parties supprimées (ids fixes)
+  retirées partout, y compris de `supprimees`, et présences d'avant le 30 octobre à une date sans partie effacées.
+  Refait à chaque ouverture (sinon la fusion les ramènerait). Explications des « restes » : `idées.md`.
 - **#24** : `data.reglages.compter15` (**Non par défaut** : seul `true` compte les 15 ; voyage avec les données ; dans `mergeData`, le plus récent `reglages.modifie`
   l'emporte). Les cases entrées avec « Non » sont listées dans `sans15Fields` : `migrateScores` n'y remet jamais de 15.
 - Toute modification du format des données doit passer par la migration (`migrateScores`) pour que les

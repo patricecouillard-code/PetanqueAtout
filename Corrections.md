@@ -295,23 +295,19 @@ Décidé et fait le 22 octobre 2026 :
 
 ---
 
-## #28 — Ménage des restes de parties supprimées ❓
+## #28 — Ménage des restes de parties supprimées ✅ (une seule fois)
 
 Demande du 30 octobre 2026 (Patrice est le seul à tester ; les parties qui restent sont valides, les parties
-supprimées peuvent disparaître complètement). Restes trouvés dans la sauvegarde du 27 octobre : des présences
-enregistrées à des dates sans partie (5, 6, 9, 13 et 26 octobre) et la liste des 10 parties supprimées.
+supprimées peuvent disparaître complètement). Décision : **ménage complet, pour cette fois-ci seulement**.
 
-Proposition :
-
-- ❓ **A.** À chaque ouverture : les présences d'une date **où il n'y a aucune partie** sont effacées (sauf
-  aujourd'hui, pour garder les cases cochées en préparant une partie). Si une partie du 26 octobre existe sur la
-  tablette, ses présences restent.
-- ❓ **B.** Supprimer une partie efface aussi les présences de ce jour-là s'il n'y reste plus aucune partie
-  (« Annuler » remet tout).
-- ❓ **C.** La liste des numéros des parties supprimées **reste** (invisible, quelques lignes) : elle empêche une
-  partie supprimée de revenir depuis un autre appareil (le téléphone, par exemple).
-- ❓ **D.** L'historique des anciennes sauvegardes sur GitHub n'est pas touché (filet de sécurité).
-
+- ✅ Les 10 parties supprimées pendant les essais disparaissent complètement, y compris de la liste des suppressions
+  (et d'un autre appareil qui les aurait encore, comme le téléphone).
+- ✅ Les présences enregistrées **avant le 30 octobre 2026** à une date sans aucune partie sont effacées
+  (5, 6, 9, 13 et 26 octobre dans la sauvegarde du 27 ; si la tablette a une partie à une de ces dates, ses
+  présences restent).
+- Rien d'autre n'est touché : à partir du 30 octobre 2026, tout fonctionne comme avant.
+- 💡 Les suggestions pour la suite (nettoyage automatique, effacer les présences en supprimant une partie) et
+  l'explication des « restes » sont gardées dans `idées.md`.
 ---
 
 ## #17 — Victoires d'équipe : aucun changement ✔️

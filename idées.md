@@ -34,6 +34,21 @@ parties. L'application pourrait repérer deux parties qui se ressemblent (même 
 équipes) et le signaler, par exemple avec un badge « ⚠️ Doublon possible » dans la « Liste des parties », pour
 qu'on supprime celle en trop (les statistiques se recalculent toutes seules).
 
+### Restes des parties supprimées : explications et suggestions (30 octobre 2026)
+Ce qui reste quand on supprime une partie (rien de tout cela ne compte dans les statistiques) :
+- **La liste des numéros des parties supprimées** (`supprimees`) : quelques lignes invisibles, **nécessaires** pour
+  qu'une partie supprimée ne revienne pas depuis un autre appareil (téléphone, ami) lors d'une sauvegarde.
+- **Des présences à des dates sans partie** : les cases « Présent » de « Nouvelle partie » s'enregistrent dès qu'on
+  les touche, même sans générer les équipes ; et supprimer une partie n'efface pas les présences du jour. Les
+  statistiques ne regardent que les jours où il y a au moins une partie. Si on ajoute plus tard une partie à cette
+  date (#22), les cases sont pré-cochées selon ces présences.
+- **L'historique des anciennes sauvegardes sur GitHub** : invisible dans l'application, sert de filet de sécurité.
+
+Suggestions (non retenues pour l'instant ; un ménage unique a été fait le 30 octobre 2026, #28) :
+- Nettoyage automatique à chaque ouverture des présences d'une date sans partie (sauf aujourd'hui).
+- En supprimant une partie, effacer aussi les présences de ce jour-là s'il n'y reste plus aucune partie
+  (« Annuler » remet tout).
+
 ### Saisie des points en touchant les trous
 Au lieu de taper le total d'un joueur, on touche les trous où ses boules sont tombées (par exemple ♥, ♣, −5), avec un bouton « à côté » pour une boule ratée.
 - L'application calcule le total selon la manche (atout en double, Tout atout tout en double).

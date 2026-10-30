@@ -246,6 +246,26 @@ function purgePlayers(data) {
   return data;
 }
 
+/* #28 — Ménage fait une seule fois (décision du 30 octobre 2026) : les 10 parties supprimées pendant les essais
+   disparaissent complètement (aussi de la liste des suppressions, et si un autre appareil les avait encore),
+   et les présences enregistrées avant le 30 octobre 2026 à une date sans aucune partie sont effacées.
+   Refait à chaque ouverture pour que la fusion avec GitHub ou le téléphone ne les ramène pas ; les dates
+   à partir du 30 octobre 2026 ne sont jamais touchées. */
+const MENAGE_PARTIES = ['2a5daa50-5b33-49f9-938c-b48ad8c1b4ce', 'd6b49f6f-b54e-479f-bfe9-7899373e6cc9',
+  '0aa916d3-1cb4-46c6-953e-256c63e6896e', 'b70b34f4-ae62-4ed3-8b58-7ee37d041685', '52803e75-6012-4669-bb15-e0306a0276f9',
+  'af65b27b-0e28-40ff-b755-155e30706eac', '0303b677-3180-4829-9cb2-18336b02aa22', '723e3760-9f47-489a-a686-9cafe9f26d8c',
+  '3c447529-05fe-42ad-b9aa-3430688d278e', '618cb248-3b01-4eb3-916d-920027f0bd8b'];
+const MENAGE_AVANT = '2026-10-30';
+function menage28(data) {
+  data.parties = data.parties.filter(p => !MENAGE_PARTIES.includes(p.id));
+  data.supprimees = data.supprimees.filter(id => !MENAGE_PARTIES.includes(id));
+  const datesJouees = new Set(data.parties.map(p => p.date));
+  Object.keys(data.presences).forEach(date => {
+    if (date < MENAGE_AVANT && !datesJouees.has(date)) delete data.presences[date];
+  });
+  return data;
+}
+
 /* Le Fantôme existe toujours dans la liste des joueurs */
 function ensureFantome(data) {
   const g = data.joueurs.find(j => j.fantome || j.nom === FANTOME);
@@ -268,7 +288,7 @@ function migrateData(d) {
   const data = { joueurs: d.joueurs || [], parties: d.parties || [], presences: d.presences || {}, saisons: d.saisons || [], supprimees: d.supprimees || [],
     /* #24 — Réglages du jeu : voyagent avec les données (sauvegarde GitHub) ; 15 non comptés par défaut */
     reglages: { ...(d.reglages || {}), compter15: d.reglages?.compter15 === true } };
-  return ensureSaisons(ensureFantome(recoverPlayers(purgePlayers(migrateScores(data)))));
+  return ensureSaisons(ensureFantome(recoverPlayers(purgePlayers(menage28(migrateScores(data))))));
 }
 
 /* ═══════════════════════════════════════════════
