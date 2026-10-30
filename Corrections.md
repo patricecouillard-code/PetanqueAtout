@@ -295,6 +295,25 @@ Décidé et fait le 22 octobre 2026 :
 
 ---
 
+## #28 — Ménage des restes de parties supprimées ❓
+
+Demande du 30 octobre 2026 (Patrice est le seul à tester ; les parties qui restent sont valides, les parties
+supprimées peuvent disparaître complètement). Restes trouvés dans la sauvegarde du 27 octobre : des présences
+enregistrées à des dates sans partie (5, 6, 9, 13 et 26 octobre) et la liste des 10 parties supprimées.
+
+Proposition :
+
+- ❓ **A.** À chaque ouverture : les présences d'une date **où il n'y a aucune partie** sont effacées (sauf
+  aujourd'hui, pour garder les cases cochées en préparant une partie). Si une partie du 26 octobre existe sur la
+  tablette, ses présences restent.
+- ❓ **B.** Supprimer une partie efface aussi les présences de ce jour-là s'il n'y reste plus aucune partie
+  (« Annuler » remet tout).
+- ❓ **C.** La liste des numéros des parties supprimées **reste** (invisible, quelques lignes) : elle empêche une
+  partie supprimée de revenir depuis un autre appareil (le téléphone, par exemple).
+- ❓ **D.** L'historique des anciennes sauvegardes sur GitHub n'est pas touché (filet de sécurité).
+
+---
+
 ## #17 — Victoires d'équipe : aucun changement ✔️
 
 Les victoires sont des victoires d'**équipe** (les équipes changent à chaque partie) ; les meilleurs joueurs se retrouvent déjà dans les statistiques individuelles. **On ne suit pas les victoires.**
